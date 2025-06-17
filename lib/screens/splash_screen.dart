@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
               "HANGMATCH",
               style: TextStyle(
                 color: Color(0xFF884EE9),
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 fontSize: 40,
               ),
             ),
