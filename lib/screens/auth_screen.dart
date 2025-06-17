@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/components/form_component.dart';
 
-class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key});
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({super.key});
 
   @override
-  State<SignInScreen> createState() {
-    return _SignInScreenState();
+  State<AuthScreen> createState() {
+    return _AuthScreenState();
   }
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

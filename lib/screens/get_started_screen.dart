@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/components/gradient_button.dart';
-import 'package:hangmatch/screens/sign_in_screen.dart';
+import 'package:hangmatch/screens/auth_screen.dart';
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
@@ -44,7 +44,7 @@ class GetStartedScreen extends StatelessWidget {
               height: 63,
               text: "GET STARTED",
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> SignInScreen()));
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> AuthScreen()));
               },
             ),
           ],
