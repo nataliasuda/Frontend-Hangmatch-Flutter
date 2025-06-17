@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hangmatch/components/gradient_button.dart';
 
 class GetStartedScreen extends StatelessWidget {
   const GetStartedScreen({super.key});
@@ -37,6 +38,13 @@ class GetStartedScreen extends StatelessWidget {
               style: TextStyle(fontSize: 22),
             ),
             SizedBox(height: 65),
+                GradientButton(
+              width: 351,
+              height: 63,
+              text: "GET STARTED",
+              onPressed: () {
+              },
+            ),
           ],
         ),
       ),
