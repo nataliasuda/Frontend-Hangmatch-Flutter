@@ -28,13 +28,41 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
             SizedBox(height: 32),
-            Text('HANGMATCH'),
+            Text(
+              'HANGMATCH',
+              style: TextStyle(
+                fontSize: 30,
+                color: Color(0xFF884EE9),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             SizedBox(height: 81),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextButton(onPressed: () {}, child: Text('Sign in')),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'SIGN IN',
+                    style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
                 SizedBox(width: 66),
-                TextButton(onPressed: () {}, child: Text('Sign Up')),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'SIGN UP',
+                    style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ],
             ),
             Padding(
