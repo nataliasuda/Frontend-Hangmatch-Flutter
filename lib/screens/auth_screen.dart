@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/components/form_component.dart';
+import 'package:hangmatch/components/gradient_button.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -36,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 81),
+            SizedBox(height:81),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -77,6 +78,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 24),
+            GradientButton(text: 'SIGN IN', onPressed: (){}, width: 351, height: 63),
           ],
         ),
       ),
