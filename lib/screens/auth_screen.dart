@@ -37,7 +37,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height:81),
+            SizedBox(height: 81),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -73,13 +73,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     FormComponent(text: 'E-mail'),
                     SizedBox(height: 42),
-                    FormComponent(text: 'Password'),
+                    FormComponent(text: 'Password', isPassword: true),
                   ],
                 ),
               ),
             ),
             SizedBox(height: 24),
-            GradientButton(text: 'SIGN IN', onPressed: (){}, width: 351, height: 63),
+            GradientButton(
+              text: 'SIGN IN',
+              onPressed: () {},
+              width: 351,
+              height: 63,
+            ),
           ],
         ),
       ),
