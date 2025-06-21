@@ -4,7 +4,21 @@ import 'package:flutter_svg/svg.dart';
 class FormComponent extends StatefulWidget {
   final String text;
   final bool isPassword;
-  const FormComponent({required this.text, this.isPassword = false, super.key});
+  final String? Function(String?) validator;
+  final void Function(String?) onSaved;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  const FormComponent({
+    required this.text,
+    this.isPassword = false,
+    required this.validator,
+    required this.onSaved,
+    this.keyboardType, 
+    this.textInputAction,
+    this.controller,
+    super.key,
+  });
 
   @override
   State<FormComponent> createState() => _FormComponentState();
@@ -16,6 +30,9 @@ class _FormComponentState extends State<FormComponent> {
   Widget build(BuildContext context) {
     return TextFormField(
       obscureText: widget.isPassword ? _isObscured : false,
+      validator: widget.validator,
+      onSaved: widget.onSaved,
+      controller: widget.controller,
       decoration: InputDecoration(
         labelText: widget.text,
         labelStyle: TextStyle(color: Colors.white),
@@ -42,7 +59,6 @@ class _FormComponentState extends State<FormComponent> {
                 )
                 : null,
       ),
-      
     );
   }
 }
