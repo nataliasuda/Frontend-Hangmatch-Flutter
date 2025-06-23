@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hangmatch/screens/home.dart';
 import 'package:hangmatch/services/token_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:hangmatch/models/user.dart';
@@ -41,6 +42,10 @@ class UserService {
       if (token != null) {
         await TokenService().saveToken(token);
         await getCurrentUser(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
       }
     }
   }
