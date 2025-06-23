@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/components/form_component.dart';
 import 'package:hangmatch/components/gradient_button.dart';
+import 'package:hangmatch/models/user.dart';
+import 'package:hangmatch/services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,15 +17,17 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool isSignIn = true;
   final _form = GlobalKey<FormState>();
-  var _enteredName = '';
-  var _enteredEmail = '';
-  var _enteredPassword = '';
-  var _enteredRepeatPassword = '';
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
 
+  final userService = UserService();
+
   @override
   void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     _repeatPasswordController.dispose();
     super.dispose();
@@ -37,11 +41,14 @@ class _AuthScreenState extends State<AuthScreen> {
     }
     _form.currentState?.save();
 
-    print('Email entered: $_enteredEmail');
-    print('Name entered: $_enteredName');
-    print('Password entered: $_enteredPassword');
     if (!isSignIn) {
-      print('Repeat Password entered: $_enteredRepeatPassword');
+      final register = Register(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        repeatPassword: _repeatPasswordController.text,
+      );
+      userService.register(context, register);
     }
   }
 
@@ -78,14 +85,11 @@ class _AuthScreenState extends State<AuthScreen> {
                     onPressed: () {
                       setState(() {
                         isSignIn = true;
-                        _form.currentState
-                            ?.reset(); // resetuje walidację i wartości pól
+                        _form.currentState?.reset();
+                        _nameController.clear();
+                        _emailController.clear();
                         _passwordController.clear();
                         _repeatPasswordController.clear();
-                        _enteredName = '';
-                        _enteredEmail = '';
-                        _enteredPassword = '';
-                        _enteredRepeatPassword = '';
                       });
                     },
                     child: Text(
@@ -109,14 +113,12 @@ class _AuthScreenState extends State<AuthScreen> {
                     onPressed: () {
                       setState(() {
                         isSignIn = false;
-                        _form.currentState
-                            ?.reset(); // resetuje walidację i wartości pól
+                        _form.currentState?.reset();
+                        _nameController.clear();
+                        _emailController.clear();
+                        _passwordController.clear();
                         _passwordController.clear();
                         _repeatPasswordController.clear();
-                        _enteredName = '';
-                        _enteredEmail = '';
-                        _enteredPassword = '';
-                        _enteredRepeatPassword = '';
                       });
                     },
                     child: Text(
@@ -150,6 +152,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         FormComponent(
                           text: 'Name',
                           textInputAction: TextInputAction.next,
+                          controller: _nameController,
                           keyboardType: TextInputType.name,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
@@ -161,13 +164,14 @@ class _AuthScreenState extends State<AuthScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            _enteredName = value!;
+                            _nameController.text = value!;
                           },
                         ),
                       if (!isSignIn) SizedBox(height: 20),
                       FormComponent(
                         text: 'E-mail',
                         keyboardType: TextInputType.emailAddress,
+                        controller: _emailController,
                         textInputAction: TextInputAction.next,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -181,7 +185,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           return null;
                         },
                         onSaved: (value) {
-                          _enteredEmail = value!;
+                          _emailController.text = value!;
                         },
                       ),
                       if (!isSignIn) SizedBox(height: 20),
@@ -210,7 +214,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           return null;
                         },
                         onSaved: (value) {
-                          _enteredPassword = value!;
+                          _passwordController.text = value!;
                         },
                       ),
                       if (!isSignIn) SizedBox(height: 20),
@@ -231,7 +235,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            _enteredRepeatPassword = value!;
+                            _repeatPasswordController.text = value!;
                           },
                         ),
                     ],
