@@ -50,6 +50,13 @@ class _AuthScreenState extends State<AuthScreen> {
       );
       userService.register(context, register);
     }
+    if (isSignIn) {
+      final login = Login(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      userService.login(context, login);
+    }
   }
 
   @override
