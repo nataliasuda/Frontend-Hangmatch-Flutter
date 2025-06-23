@@ -40,7 +40,31 @@ class UserService {
 
       if (token != null) {
         await TokenService().saveToken(token);
+        await getCurrentUser(context);
       }
+    }
+  }
+
+  Future<void> getCurrentUser(BuildContext context) async {
+    final token = await TokenService().getToken();
+
+    if (token == null) {
+      return;
+    }
+
+    final url = Uri.parse('http://10.0.2.2:8000/users/me');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final userData = jsonDecode(response.body);
+      print('User data: $userData');
     }
   }
 }
