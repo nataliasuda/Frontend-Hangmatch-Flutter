@@ -21,6 +21,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
+  bool isLoading = false;
 
   final userService = UserService();
 
@@ -41,21 +42,30 @@ class _AuthScreenState extends State<AuthScreen> {
     }
     _form.currentState?.save();
 
-    if (!isSignIn) {
-      final register = Register(
-        name: _nameController.text,
-        email: _emailController.text,
-        password: _passwordController.text,
-        repeatPassword: _repeatPasswordController.text,
-      );
-      userService.register(context, register);
-    }
-    if (isSignIn) {
-      final login = Login(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      userService.login(context, login);
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      if (!isSignIn) {
+        final register = Register(
+          name: _nameController.text,
+          email: _emailController.text,
+          password: _passwordController.text,
+          repeatPassword: _repeatPasswordController.text,
+        );
+       await userService.register(context, register);
+      } else {
+        final login = Login(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+       await userService.login(context, login);
+      }
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -251,12 +261,14 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
 
               SizedBox(height: 24),
-              GradientButton(
-                text: isSignIn ? 'SIGN IN' : 'SIGN UP',
-                onPressed: _submit,
-                width: 351,
-                height: 63,
-              ),
+              isLoading
+                  ? CircularProgressIndicator()
+                  : GradientButton(
+                    text: isSignIn ? 'SIGN IN' : 'SIGN UP',
+                    onPressed: _submit,
+                    width: 351,
+                    height: 63,
+                  ),
             ],
           ),
         ),
