@@ -54,14 +54,21 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _passwordController.text,
           repeatPassword: _repeatPasswordController.text,
         );
-       await userService.register(context, register);
+        await userService.register(context, register);
       } else {
         final login = Login(
           email: _emailController.text,
           password: _passwordController.text,
         );
-       await userService.login(context, login);
+        await userService.login(context, login);
       }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -217,6 +224,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return 'Please enter your password.';
                           }
+                          if(!isSignIn){
                           if (value.trim().length < 6) {
                             return 'Password must be at least 6 characters long.';
                           }
@@ -227,7 +235,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             r'[!@#$%^&*(),.?":{}|<>]',
                           ).hasMatch(value)) {
                             return 'Password must contain at least one special character.';
-                          }
+                          }}
                           return null;
                         },
                         onSaved: (value) {
