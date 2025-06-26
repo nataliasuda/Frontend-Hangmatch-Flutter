@@ -10,7 +10,7 @@ class NewSessionButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          backgroundColor: Color(0xFFD593F7).withOpacity(0.75),
+          backgroundColor: Color(0xFFD593F7).withAlpha((0.75 * 255).toInt()),
           minimumSize: Size(342, 98),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
