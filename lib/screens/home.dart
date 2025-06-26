@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/widgets/heading.dart';
+import 'package:hangmatch/widgets/home/last_session_card.dart';
 
 import 'package:hangmatch/widgets/home/new_session_button.dart';
 
@@ -36,11 +37,13 @@ class HomeScreen extends StatelessWidget {
 
             Heading(text: 'Last session'),
             SizedBox(height: 22),
-
+            LastSessionCard(title: 'My birthday', onPressed: () {}),
+            SizedBox(height: 20),
+            LastSessionCard(title: 'Zuzia\'s meeting', onPressed: () {}),
             SizedBox(height: 22),
             Heading(text: 'Upcoming events'),
             SizedBox(height: 22),
-
+            
             SizedBox(height: 20),
           ],
         ),
