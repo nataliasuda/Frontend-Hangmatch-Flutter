@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/screens/create_session.dart';
 
 class NewSessionButton extends StatelessWidget {
   const NewSessionButton({super.key});
@@ -8,7 +9,13 @@ class NewSessionButton extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(31),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const CreateSessionScreen(),
+            ),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Color(0xFFD593F7).withAlpha((0.75 * 255).toInt()),
           minimumSize: Size(342, 98),
