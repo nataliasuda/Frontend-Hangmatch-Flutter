@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:hangmatch/widgets/heading.dart';
 import 'package:hangmatch/widgets/home/last_session_card.dart';
-
 import 'package:hangmatch/widgets/home/new_session_button.dart';
+import 'package:hangmatch/widgets/home/upcoming_event_card.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -43,8 +43,23 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 22),
             Heading(text: 'Upcoming events'),
             SizedBox(height: 22),
-            
+            UpcomingEventCard(
+              title: 'Juwenalia 2025',
+              date: 'May 9-10 2025',
+              onPressed: () {},
+            ),
             SizedBox(height: 20),
+            UpcomingEventCard(
+              title: 'Concert',
+              date: 'May 31 2025',
+              onPressed: () {},
+            ),
+            SizedBox(height: 20),
+            UpcomingEventCard(
+              title: 'Fountain show',
+              date: 'June 20 2025',
+              onPressed: () {},
+            ),
           ],
         ),
       ),
