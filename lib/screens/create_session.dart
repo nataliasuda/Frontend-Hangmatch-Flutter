@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/models/session.dart';
+import 'package:hangmatch/services/session_service.dart';
 import 'package:hangmatch/widgets/form_component.dart';
 import 'package:hangmatch/widgets/gradient_button.dart';
 import 'package:hangmatch/widgets/heading.dart';
@@ -12,6 +14,7 @@ class CreateSessionScreen extends StatefulWidget {
 }
 
 class _CreateSessionScreenState extends State<CreateSessionScreen> {
+  double _selectedRadius = 5;
   final _form = GlobalKey<FormState>();
   final _sessionNameController = TextEditingController();
 
@@ -29,6 +32,13 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
       return;
     }
     _form.currentState?.save();
+
+    final session = Session(
+      name: _sessionNameController.text,
+      locationRadius: _selectedRadius.toInt(),
+      invitedUserIds: [],
+    );
+    await SessionService().session(context, session);
   }
 
   @override
@@ -88,7 +98,13 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
 
-            SliderLocation(),
+            SliderLocation(
+              onChanged: (value) {
+                setState(() {
+                  _selectedRadius = value;
+                });
+              },
+            ),
             const SizedBox(height: 80),
             GradientButton(
               width: 351,
