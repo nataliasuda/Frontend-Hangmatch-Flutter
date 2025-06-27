@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class SliderLocation extends StatefulWidget {
-  const SliderLocation({super.key});
+  final Function(double)? onChanged;
+  const SliderLocation({super.key, this.onChanged});
 
   @override
   State<SliderLocation> createState() => _SliderLocationState();
@@ -10,7 +11,7 @@ class SliderLocation extends StatefulWidget {
 class _SliderLocationState extends State<SliderLocation> {
   double _value = 0;
   final double _min = 0;
-  final double _max = 100;
+  final double _max = 400;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +37,9 @@ class _SliderLocationState extends State<SliderLocation> {
                   setState(() {
                     _value = newValue;
                   });
+                  if (widget.onChanged != null){
+                    widget.onChanged!(newValue);
+                  }
                 },
               ),
               Positioned(
