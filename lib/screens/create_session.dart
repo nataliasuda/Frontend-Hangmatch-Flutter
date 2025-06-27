@@ -37,6 +37,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
       name: _sessionNameController.text,
       locationRadius: _selectedRadius.toInt(),
       invitedUserIds: [],
+      createdAt: DateTime.now(),
     );
     await SessionService().session(context, session);
   }
