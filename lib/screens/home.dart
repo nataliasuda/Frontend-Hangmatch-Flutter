@@ -1,12 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:hangmatch/models/session.dart';
+import 'package:hangmatch/services/session_service.dart';
 import 'package:hangmatch/widgets/heading.dart';
 import 'package:hangmatch/widgets/home/last_session_card.dart';
 import 'package:hangmatch/widgets/home/new_session_button.dart';
 import 'package:hangmatch/widgets/home/upcoming_event_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Session> sessions = [];
+
+  @override
+  void initState() {
+    _fetchSessions();
+    super.initState();
+  }
+
+  Future<void> _fetchSessions() async {
+    final result = await SessionService().getMySessions(context);
+    setState(() {
+      sessions = result;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +55,24 @@ class HomeScreen extends StatelessWidget {
             ),
 
             SizedBox(height: 11),
-            NewSessionButton(),
+            NewSessionButton(onSessionCreated: _fetchSessions),
 
             Heading(text: 'Last session'),
             SizedBox(height: 22),
-            LastSessionCard(title: 'My birthday', onPressed: () {}),
-            SizedBox(height: 20),
-            LastSessionCard(title: 'Zuzia\'s meeting', onPressed: () {}),
+            if (sessions.isEmpty)
+              const Text('No sessions found.')
+            else
+              Column(
+                children: [
+                  if (sessions.isNotEmpty)
+                    LastSessionCard(title: sessions[0].name, onPressed: () {}),
+                  if (sessions.length > 1) ...[
+                    const SizedBox(height: 20),
+                    LastSessionCard(title: sessions[1].name, onPressed: () {}),
+                  ],
+                ],
+              ),
+
             SizedBox(height: 22),
             Heading(text: 'Upcoming events'),
             SizedBox(height: 22),
