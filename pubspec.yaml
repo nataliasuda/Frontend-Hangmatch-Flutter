@@ -78,6 +78,9 @@ flutter:
     - assets/images/remove-from-favorites.svg
     - assets/images/shown-password.svg
     - assets/images/logo.png
+    - assets/images/juwe.png
+    - assets/images/thumb-up.svg
+    - assets/images/reject.svg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
