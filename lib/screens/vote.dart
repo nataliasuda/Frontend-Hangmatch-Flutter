@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hangmatch/widgets/swipe_card.dart';
+import 'package:hangmatch/widgets/vote_buttons.dart';
 
 class VoteScreen extends StatefulWidget {
   const VoteScreen({super.key});
@@ -14,7 +15,9 @@ class _VoteScreenState extends State<VoteScreen> {
     return Scaffold(
       body: Column(
         children: [
-          SwipeCard(),
+          Padding(padding: const EdgeInsets.only(top: 95), child: SwipeCard()),
+          SizedBox(height: 54),
+          VoteButtons(),
         ],
       ),
     );
