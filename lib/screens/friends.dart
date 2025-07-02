@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/widgets/manage_friends_card.dart';
 import 'package:hangmatch/widgets/heading.dart';
 
 class FriendsScreen extends StatelessWidget {
@@ -7,34 +8,47 @@ class FriendsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(39),
-            child: ElevatedButton(
-              onPressed: () {},
+      appBar: AppBar(
+        title: Heading(text: 'Friends', fontWeight: FontWeight.w600),
 
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF884EE9),
-                foregroundColor: Colors.white,
-                minimumSize: Size(338, 61),
-              ),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(39),
+              child: ElevatedButton(
+                onPressed: () {},
 
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_add, size: 28),
-                  SizedBox(width: 12),
-                  Text('Add new friend', style: TextStyle(fontSize: 18)),
-                ],
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF884EE9),
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(338, 61),
+                ),
+
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.person_add, size: 28),
+                    SizedBox(width: 12),
+                    Text('Add new friend', style: TextStyle(fontSize: 18)),
+                  ],
+                ),
               ),
             ),
-          ),
 
-          Heading(text: 'Acceptable'),
-          SizedBox(height: 32),
-          Heading(text: 'Friends'),
-        ],
+            Heading(text: 'Acceptable'),
+            SizedBox(height: 17),
+            ManageFriendsCard(),
+
+            SizedBox(height: 45),
+            Heading(text: 'Friends'),
+            SizedBox(height: 17),
+            ManageFriendsCard(isRemovable: true),
+          ],
+        ),
       ),
     );
   }
