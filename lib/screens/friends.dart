@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/screens/add_friend.dart';
 import 'package:hangmatch/widgets/manage_friends_card.dart';
 import 'package:hangmatch/widgets/heading.dart';
 
@@ -20,7 +21,12 @@ class FriendsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(39),
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddFriendScreen()),
+                  );
+                },
 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF884EE9),
