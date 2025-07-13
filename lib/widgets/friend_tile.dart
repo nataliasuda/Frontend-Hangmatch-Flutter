@@ -52,6 +52,7 @@ class FriendTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
+          _buildTrailingIcon(status, onAdd),
         ],
       ),
     );
@@ -67,6 +68,21 @@ class FriendTile extends StatelessWidget {
         return 'Already friends';
       default:
         return '';
+    }
+  }
+
+  static Widget _buildTrailingIcon(String status, VoidCallback? onAdd) {
+    if (status == 'not_friends') {
+      return GestureDetector(
+        onTap: onAdd,
+        child: const Icon(Icons.person_add_alt_1, color: Colors.purpleAccent),
+      );
+    } else if (status == 'pending') {
+      return const Icon(Icons.hourglass_bottom, color: Colors.purpleAccent);
+    } else if (status == 'friends') {
+      return const Icon(Icons.check, color: Color(0xFF884EE9));
+    } else {
+      return SizedBox.shrink();
     }
   }
 }
