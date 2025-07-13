@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hangmatch/widgets/custom_search_bar.dart';
-import 'package:hangmatch/widgets/heading.dart';
+import '../models/friend.dart';
+import '../services/friend_service.dart';
+import '../widgets/friend_tile.dart';
 
 class AddFriendsScreen extends StatefulWidget {
   const AddFriendsScreen({super.key});
@@ -10,13 +12,18 @@ class AddFriendsScreen extends StatefulWidget {
 }
 
 class _AddFriendsScreenState extends State<AddFriendsScreen> {
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
+  final FriendService friendService = FriendService();
+
+  List<Friend> friends = [];
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Heading(text: 'Add New Friends'),
+        title: const Text( 'Add New Friends'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -25,10 +32,36 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
         child: Column(
           children: [
             CustomSearchBar(
-              controller: searchController,
+              controller: _searchController,
               hintText: "Search by e-mail...",
+              onChanged: null,
             ),
             const SizedBox(height: 20),
+            Expanded(
+              child:
+                  isLoading
+                      ? const Center(
+                        child: CircularProgressIndicator(),
+                      )
+                      : friends.isNotEmpty
+                      ? ListView.builder(
+                        itemCount: friends.length,
+                        itemBuilder: (context, index) {
+                          final friend = friends[index];
+                          return FriendTile(
+                            email: friend.email,
+                            status: friend.status,
+                            onAdd: () {},
+                          );
+                        },
+                      )
+                      : const Center(
+                        child: Text(
+                          "No users found",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+            ),
           ],
         ),
       ),
