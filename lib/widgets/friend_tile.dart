@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 class FriendTile extends StatelessWidget {
   final String email;
   final String status;
-  final void Function() onAdd;
+  final VoidCallback? onAdd;
 
   const FriendTile({
     super.key,
     required this.email,
     required this.status,
-    required this.onAdd,
+    this.onAdd,
   });
 
   @override
@@ -44,6 +44,10 @@ class FriendTile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
+                Text(
+                  _statusText(status),
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12),
+                ),
               ],
             ),
           ),
@@ -51,5 +55,18 @@ class FriendTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _statusText(String status) {
+    switch (status) {
+      case 'not_friends':
+        return 'Add to friends';
+      case 'pending':
+        return 'Invite sent';
+      case 'friends':
+        return 'Already friends';
+      default:
+        return '';
+    }
   }
 }
