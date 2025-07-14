@@ -36,6 +36,15 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
     }
   }
 
+  void sendInvite(BuildContext context, String email) async {
+    try {
+      await friendService.inviteFriend(context, email);
+      onSearch(_searchController.text);
+    } catch (e) {
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +76,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                           return FriendTile(
                             email: friend.email,
                             status: friend.status,
-                            onAdd: () {},
+                            onAdd: () {
+                              sendInvite(context, friend.email);
+                            },
                           );
                         },
                       )
