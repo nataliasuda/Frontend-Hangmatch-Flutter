@@ -120,6 +120,26 @@ Future<List<Friend>> getFriends() async {
   }
 }
 
+Future<void> removeFriend(BuildContext context, int friendId) async {
+  final url = Uri.parse('$baseUrl/friends/remove/$friendId');
+  final token = await TokenService().getToken();
+  if (token == null) {
+    return;
+  }
+
+  final response = await http.delete(
+    url,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+
+  final responseData = jsonDecode(response.body);
+  if (response.statusCode == 200) {
+    _showSnackBar(context, responseData['message'], true);
+  } else {
+    _showSnackBar(context, responseData['detail'], false);
+  }
+}
+
 void _showSnackBar(BuildContext context, String message, bool success) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
