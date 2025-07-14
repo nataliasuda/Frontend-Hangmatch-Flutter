@@ -101,6 +101,25 @@ Future<List<FriendRequest>> getMyRequests() async {
   }
 }
 
+Future<List<Friend>> getFriends() async {
+  final url = Uri.parse('$baseUrl/friends');
+  final token = await TokenService().getToken();
+  if (token == null) {
+    return [];
+  }
+
+  final response = await http.get(
+    url,
+    headers: {'Authorization': 'Bearer $token'},
+  );
+  if (response.statusCode == 200) {
+    final List<dynamic> responseData = jsonDecode(response.body);
+    return responseData.map((e) => Friend.fromJson(e)).toList();
+  } else {
+    throw Exception('Failed to download friends');
+  }
+}
+
 void _showSnackBar(BuildContext context, String message, bool success) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
