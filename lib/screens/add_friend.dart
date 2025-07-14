@@ -18,12 +18,30 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   List<Friend> friends = [];
   bool isLoading = false;
 
+  void onSearch(String query) async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final results = await friendService.searchFriends(query);
+      setState(() {
+        friends = results;
+      });
+    } catch (e) {
+      print('An error occurred: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text( 'Add New Friends'),
+        title: const Text('Add New Friends'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
@@ -34,15 +52,13 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
             CustomSearchBar(
               controller: _searchController,
               hintText: "Search by e-mail...",
-              onChanged: null,
+              onChanged: onSearch,
             ),
             const SizedBox(height: 20),
             Expanded(
               child:
                   isLoading
-                      ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
+                      ? const Center(child: CircularProgressIndicator())
                       : friends.isNotEmpty
                       ? ListView.builder(
                         itemCount: friends.length,
