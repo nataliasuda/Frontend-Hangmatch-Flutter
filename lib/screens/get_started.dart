@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:hangmatch/components/gradient_button.dart';
+import 'package:hangmatch/widgets/gradient_button.dart';
 import 'package:hangmatch/screens/auth.dart';
 
 class GetStartedScreen extends StatelessWidget {
