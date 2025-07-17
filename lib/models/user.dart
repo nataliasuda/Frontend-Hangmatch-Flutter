@@ -24,15 +24,37 @@ class Register {
     required this.password,
     required this.repeatPassword,
   });
+
+  factory Register.fromJson(Map<String, dynamic> json) {
+    return Register(
+      name: json['name'],
+      email: json['email'],
+      password: json['password'],
+      repeatPassword: json['repeatPassword'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'email': email,
+      'password': password,
+      'repeatPassword': repeatPassword,
+    };
+  }
 }
+
 class Login {
   final String email;
   final String password;
 
-  Login({
+  Login({required this.email, required this.password});
 
-    required this.email,
-    required this.password,
-  });
+  factory Login.fromJson(Map<String, dynamic> json) {
+    return Login(email: json['email'], password: json['password']);
+  }
 
+  Map<String, dynamic> toJson() {
+    return {'email': email, 'password': password};
+  }
 }
