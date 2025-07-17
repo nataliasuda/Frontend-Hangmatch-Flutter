@@ -39,7 +39,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
       invitedUserIds: [],
       createdAt: DateTime.now(),
     );
-    await SessionService().session(context, session);
+    await SessionService().createSession(context, session);
   }
 
   @override
