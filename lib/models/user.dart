@@ -30,7 +30,7 @@ class Register {
       name: json['name'],
       email: json['email'],
       password: json['password'],
-      repeatPassword: json['repeatPassword'],
+      repeatPassword: json['repeated_password'],
     );
   }
 
@@ -39,7 +39,7 @@ class Register {
       'name': name,
       'email': email,
       'password': password,
-      'repeatPassword': repeatPassword,
+      'repeated_password': repeatPassword,
     };
   }
 }
