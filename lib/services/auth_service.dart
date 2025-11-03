@@ -80,7 +80,7 @@ class UserService {
     );
     final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      _showSnackBar(context, 'message: ${responseData['name']}', true);
+      _showSnackBar(context, 'Logged in: ${responseData['name']}', true);
     } else {
       _showSnackBar(context, responseData['detail'], false);
     }
