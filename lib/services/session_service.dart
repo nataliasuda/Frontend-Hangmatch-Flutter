@@ -32,19 +32,19 @@ class SessionService {
       if (response.statusCode == 200) {
         _showSnackBar(
           context,
-          responseData['message'] ?? 'Sesja utworzona!',
+          responseData['message'] ?? 'Session created!',
           true,
         );
       } else {
         _showSnackBar(
           context,
-          responseData['detail'] ?? 'Błąd tworzenia sesji',
+          responseData['detail'] ?? 'Error creating session',
           false,
         );
       }
     } catch (e) {
       if (!context.mounted) return;
-      _showSnackBar(context, 'Wystąpił błąd: $e', false);
+      _showSnackBar(context, 'An error occurred: $e', false);
     }
   }
 
