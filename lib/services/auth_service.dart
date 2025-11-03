@@ -2,26 +2,21 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hangmatch/services/token_service.dart';
 import 'package:hangmatch/widgets/modern_navigation_bar.dart';
-import 'package:http/http.dart' as http;
 import 'package:hangmatch/models/user.dart';
 
 class UserService {
   final baseUrl = Uri.parse('http://10.0.2.2:8000');
+  final TokenService _tokenService = TokenService();
 
   Future<void> register(BuildContext context, Register register) async {
     final url = Uri.parse('$baseUrl/register');
 
     try {
-      final response = await http.post(
+      final response = await _tokenService.authorizedPost(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': register.name,
-          'email': register.email,
-          'password': register.password,
-          'repeated_password': register.repeatPassword,
-        }),
+        body: register.toJson(),
       );
+
       if (!context.mounted) return;
 
       final responseData = jsonDecode(response.body);
@@ -39,27 +34,34 @@ class UserService {
     final url = Uri.parse('$baseUrl/login');
 
     try {
-      final response = await http.post(
+      final response = await _tokenService.authorizedPost(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': login.email, 'password': login.password}),
+        body: login.toJson(),
       );
+
       if (!context.mounted) return;
+
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
-        final token = responseData['access_token'];
+        final accessToken = responseData['access_token'];
+        final refreshToken = responseData['refresh_token'];
 
-        if (token != null) {
-          await TokenService().saveToken(token);
-          if (!context.mounted) return;
-          await getCurrentUser(context);
-          if (!context.mounted) return;
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const ModernNavigationBar()),
-          );
+        if (accessToken != null) {
+          await _tokenService.saveToken(accessToken);
+        }
+        if (refreshToken != null) {
+          await _tokenService.saveRefreshToken(refreshToken);
         }
         if (!context.mounted) return;
+
+        await getCurrentUser(context);
+
+        if (!context.mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const ModernNavigationBar()),
+        );
       } else {
         _showSnackBar(context, responseData['detail'], false);
       }
@@ -69,22 +71,12 @@ class UserService {
   }
 
   Future<void> getCurrentUser(BuildContext context) async {
-    final token = await TokenService().getToken();
-
-    if (token == null) {
-      return;
-    }
-
     final url = Uri.parse('$baseUrl/users/me');
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await _tokenService.authorizedGet(url);
+
     if (!context.mounted) return;
+
     final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
       _showSnackBar(context, 'Logged in: ${responseData['name']}', true);
@@ -92,7 +84,7 @@ class UserService {
       _showSnackBar(context, responseData['detail'], false);
     }
   }
-}
+
 
 void _showSnackBar(BuildContext context, String message, bool success) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -101,4 +93,5 @@ void _showSnackBar(BuildContext context, String message, bool success) {
       content: Text(message),
     ),
   );
+}
 }

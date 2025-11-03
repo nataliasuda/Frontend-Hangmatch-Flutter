@@ -1,31 +1,21 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hangmatch/models/session.dart';
 import 'package:hangmatch/services/token_service.dart';
-import 'package:http/http.dart' as http;
 
 class SessionService {
   final baseUrl = Uri.parse('http://10.0.2.2:8000');
-  final storage = const FlutterSecureStorage();
+  final TokenService _tokenService = TokenService();
 
-  Future<void> session(BuildContext context, Session session) async {
-    final url = Uri.parse('$baseUrl/sessions/');
-    final token = await TokenService().getToken();
-
-    if (token == null) {
-      return;
-    }
+  Future<void> createSession(BuildContext context, Session session) async {
+    final url = Uri.parse('$baseUrl/sessions');
 
     try {
-      final response = await http.post(
+      final response = await _tokenService.authorizedPost(
         url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode(session.toJson()),
+        body: session.toJson(),
       );
+
       if (!context.mounted) return;
 
       final responseData = jsonDecode(response.body);
@@ -49,22 +39,13 @@ class SessionService {
   }
 
   Future<List<Session>> getMySessions(BuildContext context) async {
+    final url = Uri.parse('$baseUrl/sessions/me');
+
     try {
-      final url = Uri.parse('$baseUrl/sessions/me');
-      final token = await TokenService().getToken();
+      final response = await _tokenService.authorizedGet(url);
 
-      if (token == null) {
-        return [];
-      }
-
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
       if (!context.mounted) return [];
+
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         if (responseData is List) {
