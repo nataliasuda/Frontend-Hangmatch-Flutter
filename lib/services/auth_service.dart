@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hangmatch/screens/home.dart';
 import 'package:hangmatch/services/token_service.dart';
+import 'package:hangmatch/widgets/modern_navigation_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:hangmatch/models/user.dart';
 
@@ -51,7 +51,7 @@ class UserService {
           await getCurrentUser(context);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const ModernNavigationBar()),
           );
         }
       } else {
