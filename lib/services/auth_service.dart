@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hangmatch/screens/home.dart';
 import 'package:hangmatch/services/token_service.dart';
+import 'package:hangmatch/widgets/modern_navigation_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:hangmatch/models/user.dart';
 
@@ -56,7 +56,7 @@ class UserService {
           if (!context.mounted) return;
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const ModernNavigationBar()),
           );
         }
         if (!context.mounted) return;
@@ -87,7 +87,7 @@ class UserService {
     if (!context.mounted) return;
     final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      _showSnackBar(context, 'Zalogowano jako: ${responseData['name']}', true);
+      _showSnackBar(context, 'Logged in: ${responseData['name']}', true);
     } else {
       _showSnackBar(context, responseData['detail'], false);
     }

@@ -4,12 +4,14 @@ class CustomContainer extends StatelessWidget {
   final Widget child;
   final double height;
   final double width;
+  final bool showBorder;
 
   const CustomContainer({
     super.key,
     required this.child,
     this.height = 60.0,
     this.width = 310.0,
+    this.showBorder = false,
   });
 
   @override
@@ -22,16 +24,12 @@ class CustomContainer extends StatelessWidget {
           height: height,
           width: width,
           decoration: BoxDecoration(
-            color: Colors.white.withAlpha((0.1 * 255).toInt()),
-
-            borderRadius: BorderRadius.circular(30.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.1 * 255).toInt()),
-                blurRadius: 10.0,
-                offset: Offset(0, 4),
-              ),
-            ],
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(20),
+            border:
+                showBorder
+                    ? null
+                    : Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: Padding(
             padding: const EdgeInsets.only(top: 11, left: 30),
