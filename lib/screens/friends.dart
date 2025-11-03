@@ -24,7 +24,7 @@ class FriendsScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => AddFriendScreen()),
+                    MaterialPageRoute(builder: (context) => AddFriendsScreen()),
                   );
                 },
 
