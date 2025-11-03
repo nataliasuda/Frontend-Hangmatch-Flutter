@@ -22,6 +22,8 @@ class UserService {
           'repeated_password': register.repeatPassword,
         }),
       );
+      if (!context.mounted) return;
+
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         _showSnackBar(context, responseData['message'], true);
@@ -42,18 +44,22 @@ class UserService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': login.email, 'password': login.password}),
       );
+      if (!context.mounted) return;
       final responseData = jsonDecode(response.body);
       if (response.statusCode == 200) {
         final token = responseData['access_token'];
 
         if (token != null) {
           await TokenService().saveToken(token);
+          if (!context.mounted) return;
           await getCurrentUser(context);
+          if (!context.mounted) return;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const ModernNavigationBar()),
           );
         }
+        if (!context.mounted) return;
       } else {
         _showSnackBar(context, responseData['detail'], false);
       }
@@ -78,6 +84,7 @@ class UserService {
         'Authorization': 'Bearer $token',
       },
     );
+    if (!context.mounted) return;
     final responseData = jsonDecode(response.body);
     if (response.statusCode == 200) {
       _showSnackBar(context, 'Logged in: ${responseData['name']}', true);
