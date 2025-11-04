@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hangmatch/screens/edit_profile.dart';
 import 'package:hangmatch/screens/settings.dart';
-import 'package:hangmatch/widgets/profile_button.dart';
+import 'package:hangmatch/widgets/profile/profile_button.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
