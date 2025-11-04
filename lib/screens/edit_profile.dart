@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/widgets/profile/avatar_section.dart';
+import 'package:hangmatch/widgets/profile/input_field.dart';
+import 'package:hangmatch/widgets/profile/save_button.dart';
+
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -37,7 +41,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: ListView(children: [const SizedBox(height: 10)]),
+        child: ListView(
+          children: [
+            const SizedBox(height: 10),
+            const AvatarSection(),
+            const SizedBox(height: 40),
+            InputField(label: "Name", controller: nameController),
+            const SizedBox(height: 20),
+            InputField(label: "Email", controller: emailController),
+            const SizedBox(height: 20),
+            InputField(
+              label: "New Password",
+              controller: passwordController,
+              obscureText: true,
+            ),
+            const SizedBox(height: 20),
+            InputField(
+              label: "Confirm Password",
+              controller: confirmPasswordController,
+              obscureText: true,
+            ),
+            const SizedBox(height: 40),
+            SaveButton(onPressed: (){}),
+          ],
+        ),
       ),
     );
   }
