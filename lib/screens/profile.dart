@@ -3,8 +3,16 @@ import 'package:hangmatch/screens/edit_profile.dart';
 import 'package:hangmatch/screens/settings.dart';
 import 'package:hangmatch/widgets/profile/profile_button.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String _name = 'Natalia';
+  String _email = 'natalia@example.com';
 
   @override
   Widget build(BuildContext context) {
@@ -33,18 +41,18 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Natalia',
-              style: TextStyle(
+            Text(
+              _name,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'natalia@example.com',
-              style: TextStyle(color: Colors.purpleAccent, fontSize: 14),
+            Text(
+              _email,
+              style: const TextStyle(color: Colors.purpleAccent, fontSize: 14),
             ),
             const SizedBox(height: 40),
 
@@ -52,14 +60,22 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.edit,
               label: 'Edit profile',
               trailing: const Icon(Icons.chevron_right, color: Colors.white70),
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const EditProfileScreen()),
                 );
+
+                if (result != null && mounted) {
+                  setState(() {
+                    _name = result['name'] ?? _name;
+                    _email = result['email'] ?? _email;
+                  });
+                }
               },
             ),
             const SizedBox(height: 16),
+
             ProfileButton(
               icon: Icons.settings,
               label: 'Settings',
@@ -72,6 +88,7 @@ class ProfileScreen extends StatelessWidget {
               },
             ),
             const SizedBox(height: 16),
+
             ProfileButton(
               icon: Icons.logout,
               label: 'Logout',
