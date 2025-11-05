@@ -48,6 +48,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _handleLogout() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Logout', style: TextStyle(color: Colors.white)),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -161,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Icons.chevron_right,
                         color: Colors.white70,
                       ),
-                      onTap: () {},
+                      onTap: _handleLogout,
                     ),
                   ],
                 ),
