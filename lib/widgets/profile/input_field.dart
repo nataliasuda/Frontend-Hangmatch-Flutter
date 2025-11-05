@@ -4,12 +4,14 @@ class InputField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final bool obscureText;
+  final String? Function(String?)? validator;
 
   const InputField({
     super.key,
     required this.label,
     required this.controller,
     this.obscureText = false,
+    this.validator,
   });
 
   @override
@@ -22,10 +24,11 @@ class InputField extends StatelessWidget {
           style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(height: 6),
-        TextField(
+        TextFormField(
           controller: controller,
           obscureText: obscureText,
           style: const TextStyle(color: Colors.white),
+          validator: validator,
           decoration: InputDecoration(
             filled: true,
             fillColor: const Color(0xFF1A1A1A),
