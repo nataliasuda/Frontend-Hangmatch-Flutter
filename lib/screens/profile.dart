@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hangmatch/screens/edit_profile.dart';
 import 'package:hangmatch/screens/settings.dart';
 import 'package:hangmatch/widgets/profile/profile_button.dart';
+import 'package:hangmatch/services/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -11,8 +12,41 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String _name = 'Natalia';
-  String _email = 'natalia@example.com';
+  String _name = '';
+  String _email = '';
+  bool _isLoading = true;
+  final UserService _userService = UserService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await _userService.getProfile();
+
+      if (userData != null && mounted) {
+        setState(() {
+          _name = userData['name'] ?? 'User';
+          _email = userData['email'] ?? 'No email';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading user data: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,77 +62,107 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Center(
-              child: CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.white12,
-                child: const Icon(Icons.person, color: Colors.white, size: 50),
+      body:
+          _isLoading
+              ? const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              )
+              : Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 20,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Center(
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.white12,
+                        child: const Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      _name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      _email,
+                      style: const TextStyle(
+                        color: Colors.purpleAccent,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+
+                    ProfileButton(
+                      icon: Icons.edit,
+                      label: 'Edit profile',
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white70,
+                      ),
+                      onTap: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const EditProfileScreen(),
+                          ),
+                        );
+
+                        if (result != null && mounted) {
+                          setState(() {
+                            _name = result['name'] ?? _name;
+                            _email = result['email'] ?? _email;
+                          });
+
+                          _loadUserData();
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    ProfileButton(
+                      icon: Icons.settings,
+                      label: 'Settings',
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white70,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SettingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    ProfileButton(
+                      icon: Icons.logout,
+                      label: 'Logout',
+                      color: Colors.white,
+                      trailing: const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white70,
+                      ),
+                      onTap: () {},
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              _name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              _email,
-              style: const TextStyle(color: Colors.purpleAccent, fontSize: 14),
-            ),
-            const SizedBox(height: 40),
-
-            ProfileButton(
-              icon: Icons.edit,
-              label: 'Edit profile',
-              trailing: const Icon(Icons.chevron_right, color: Colors.white70),
-              onTap: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-                );
-
-                if (result != null && mounted) {
-                  setState(() {
-                    _name = result['name'] ?? _name;
-                    _email = result['email'] ?? _email;
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-
-            ProfileButton(
-              icon: Icons.settings,
-              label: 'Settings',
-              trailing: const Icon(Icons.chevron_right, color: Colors.white70),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-
-            ProfileButton(
-              icon: Icons.logout,
-              label: 'Logout',
-              color: Colors.white,
-              trailing: const Icon(Icons.chevron_right, color: Colors.white70),
-              onTap: () {},
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
