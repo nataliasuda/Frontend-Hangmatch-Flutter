@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class SaveButton extends StatelessWidget {
-  final VoidCallback onPressed;
+ final Future<void> Function()? onPressed;
+  bool ?isLoading = false;
 
-  const SaveButton({
+  SaveButton({
     super.key,
     required this.onPressed,
+    this.isLoading,
   });
 
   @override
