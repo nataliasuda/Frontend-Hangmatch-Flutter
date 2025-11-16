@@ -70,6 +70,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                _performLogout();
               },
               child: const Text('Logout', style: TextStyle(color: Colors.red)),
             ),
@@ -77,6 +78,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         );
       },
     );
+  }
+
+  Future<void> _performLogout() async {
+    try {
+      await _userService.logout(context);
+  
+    } catch (e) {
+
+      print('Logout error: $e');
+    }
   }
 
   @override
@@ -93,110 +104,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         centerTitle: true,
       ),
-      body:
-          _isLoading
-              ? const Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-              : Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 20,
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Center(
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.white12,
-                        child: Text(
-                          _name.isNotEmpty ? _name[0].toUpperCase() : 'U',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                          ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 20,
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Center(
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundColor: Colors.white12,
+                      child: Text(
+                        _name.isNotEmpty ? _name[0].toUpperCase() : 'U',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      _name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      _email,
-                      style: const TextStyle(
-                        color: Colors.purpleAccent,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-
-                    ProfileButton(
-                      icon: Icons.edit,
-                      label: 'Edit profile',
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white70,
-                      ),
-                      onTap: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const EditProfileScreen(),
-                          ),
-                        );
-
-                        if (result != null && mounted) {
-                          setState(() {
-                            _name = result['name'] ?? _name;
-                            _email = result['email'] ?? _email;
-                          });
-
-                          _loadUserData();
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    ProfileButton(
-                      icon: Icons.settings,
-                      label: 'Settings',
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white70,
-                      ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    ProfileButton(
-                      icon: Icons.logout,
-                      label: 'Logout',
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    _name,
+                    style: const TextStyle(
                       color: Colors.white,
-                      trailing: const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white70,
-                      ),
-                      onTap: _handleLogout,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    _email,
+                    style: const TextStyle(
+                      color: Colors.purpleAccent,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  ProfileButton(
+                    icon: Icons.edit,
+                    label: 'Edit profile',
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white70,
+                    ),
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const EditProfileScreen(),
+                        ),
+                      );
+
+                      if (result != null && mounted) {
+                        setState(() {
+                          _name = result['name'] ?? _name;
+                          _email = result['email'] ?? _email;
+                        });
+
+                        _loadUserData();
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  ProfileButton(
+                    icon: Icons.settings,
+                    label: 'Settings',
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white70,
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const SettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  ProfileButton(
+                    icon: Icons.logout,
+                    label: 'Logout',
+                    color: Colors.white,
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white70,
+                    ),
+                    onTap: _handleLogout,
+                  ),
+                ],
               ),
+            ),
     );
   }
 }
