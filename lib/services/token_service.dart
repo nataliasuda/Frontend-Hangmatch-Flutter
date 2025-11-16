@@ -111,4 +111,31 @@ class TokenService {
 
     return null;
   }
+
+Future<http.Response> authorizedDelete(Uri url) async {
+  String? token = await getToken();
+
+  http.Response response = await http.delete(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+  );
+
+  if (response.statusCode == 401) {
+    final newToken = await refreshAccessToken();
+    if (newToken != null) {
+      response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $newToken',
+        },
+      );
+    }
+  }
+
+  return response;
+}
 }
