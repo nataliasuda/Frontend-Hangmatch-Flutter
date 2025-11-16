@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:hangmatch/models/user.dart';
 import 'package:hangmatch/widgets/profile/avatar_section.dart';
 import 'package:hangmatch/widgets/profile/input_field.dart';
 import 'package:hangmatch/widgets/profile/save_button.dart';
+import 'package:hangmatch/services/auth_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -11,17 +13,76 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final TextEditingController nameController = TextEditingController(
-    text: 'Natalia',
-  );
-  final TextEditingController emailController = TextEditingController(
-    text: 'natalia@example.com',
-  );
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+  bool _isInitializing = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final userData = await UserService().getProfile();
+
+      if (userData != null && mounted) {
+        setState(() {
+          nameController.text = userData['name'] ?? '';
+          emailController.text = userData['email'] ?? '';
+          _isInitializing = false;
+        });
+      } else {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isInitializing = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final isChangingPassword = passwordController.text.isNotEmpty;
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userUpdate = UserUpdate(
+        name: nameController.text.trim(),
+        email: emailController.text.trim(),
+        password: isChangingPassword ? passwordController.text.trim() : null,
+        repeatedPassword:
+            isChangingPassword ? confirmPasswordController.text.trim() : null,
+      );
+
+      await UserService().updateProfile(context, userUpdate);
+
+      if (mounted) {
+        Navigator.pop(context, {
+          'name': nameController.text,
+          'email': emailController.text,
+        });
+      }
+    } catch (e) {
+      if (mounted) {}
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   void dispose() {
@@ -32,21 +93,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
-
-      Navigator.pop(context, {
-        'name': nameController.text,
-        'email': emailController.text,
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -105,16 +160,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 controller: confirmPasswordController,
                 obscureText: true,
                 validator: (value) {
-                  if (passwordController.text.isNotEmpty &&
-                      value != passwordController.text) {
-                    return "Passwords do not match";
+                  if (passwordController.text.isNotEmpty) {
+                    if (value == null || value.isEmpty) {
+                      return "Please confirm your password";
+                    }
+                    if (value != passwordController.text) {
+                      return "Passwords do not match";
+                    }
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 40),
 
-              SaveButton(onPressed: _saveChanges),
+              SaveButton(
+                onPressed: _isLoading ? null : _saveChanges,
+                isLoading: _isLoading,
+              ),
             ],
           ),
         ),
