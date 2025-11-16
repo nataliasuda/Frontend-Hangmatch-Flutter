@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hangmatch/screens/auth.dart';
 import 'package:hangmatch/services/token_service.dart';
 import 'package:hangmatch/widgets/modern_navigation_bar.dart';
 import 'package:hangmatch/models/user.dart';
@@ -126,6 +127,25 @@ class UserService {
       }
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      await _tokenService.deleteToken();
+
+      if (!context.mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const AuthScreen()),
+        (route) => false,
+      );
+
+      _showSnackBar(context, 'Logged out successfully', true);
+    } catch (e) {
+      if (!context.mounted) return;
+      _showSnackBar(context, 'Logout error: $e', false);
     }
   }
 
