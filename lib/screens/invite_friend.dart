@@ -3,6 +3,7 @@ import 'package:hangmatch/widgets/custom_search_bar.dart';
 import 'package:hangmatch/models/friend.dart';
 import 'package:hangmatch/services/friend_service.dart';
 import 'package:hangmatch/widgets/gradient_button.dart';
+import 'package:hangmatch/widgets/invite_friend_tile.dart';
 
 class InviteFriendScreen extends StatefulWidget {
   const InviteFriendScreen({super.key});
@@ -59,42 +60,14 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
     });
   }
 
-  Widget _buildFriendTile(Friend friend) {
-    final isSelected = selected.contains(friend.id);
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: ListTile(
-        leading: Icon(Icons.person, color: Colors.purpleAccent.shade100),
-        title: Text(
-          friend.name,
-          style: const TextStyle(color: Colors.white, fontSize: 15),
-        ),
-        subtitle: Text(
-          friend.email,
-          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
-        ),
-        trailing: Checkbox(
-          value: isSelected,
-          onChanged: (_) {
-            setState(() {
-              if (isSelected) {
-                selected.remove(friend.id);
-              } else {
-                selected.add(friend.id);
-              }
-            });
-          },
-          side: BorderSide(color: Colors.purple.shade300),
-          activeColor: Colors.purple,
-          checkColor: Colors.white,
-        ),
-      ),
-    );
+  void _toggleFriendSelection(String friendId) {
+    setState(() {
+      if (selected.contains(friendId)) {
+        selected.remove(friendId);
+      } else {
+        selected.add(friendId);
+      }
+    });
   }
 
   @override
@@ -129,7 +102,13 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
                         ? ListView.builder(
                           itemCount: filteredFriends.length,
                           itemBuilder: (context, index) {
-                            return _buildFriendTile(filteredFriends[index]);
+                            final friend = filteredFriends[index];
+                            return InviteFriendTile(
+                              friend: friend,
+                              isSelected: selected.contains(friend.id),
+                              onSelected:
+                                  () => _toggleFriendSelection(friend.id),
+                            );
                           },
                         )
                         : const Center(
