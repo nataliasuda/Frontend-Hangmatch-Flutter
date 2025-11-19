@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hangmatch/widgets/custom_search_bar.dart';
 import 'package:hangmatch/models/friend.dart';
 import 'package:hangmatch/services/friend_service.dart';
+import 'package:hangmatch/widgets/gradient_button.dart';
 
 class InviteFriendScreen extends StatefulWidget {
   const InviteFriendScreen({super.key});
@@ -46,11 +47,14 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
       if (query.isEmpty) {
         filteredFriends = friends;
       } else {
-        filteredFriends = friends
-            .where((friend) =>
-                friend.name.toLowerCase().contains(query.toLowerCase()) ||
-                friend.email.toLowerCase().contains(query.toLowerCase()))
-            .toList();
+        filteredFriends =
+            friends
+                .where(
+                  (friend) =>
+                      friend.name.toLowerCase().contains(query.toLowerCase()) ||
+                      friend.email.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
       }
     });
   }
@@ -115,25 +119,36 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
               onChanged: filterFriends,
             ),
             const SizedBox(height: 20),
+
             if (isLoading)
-              const Center(child: CircularProgressIndicator())
+              const Expanded(child: Center(child: CircularProgressIndicator()))
             else
               Expanded(
-                child: filteredFriends.isNotEmpty
-                    ? ListView.builder(
-                        itemCount: filteredFriends.length,
-                        itemBuilder: (context, index) {
-                          return _buildFriendTile(filteredFriends[index]);
-                        },
-                      )
-                    : const Center(
-                        child: Text(
-                          "No friends found",
-                          style: TextStyle(color: Colors.white),
+                child:
+                    filteredFriends.isNotEmpty
+                        ? ListView.builder(
+                          itemCount: filteredFriends.length,
+                          itemBuilder: (context, index) {
+                            return _buildFriendTile(filteredFriends[index]);
+                          },
+                        )
+                        : const Center(
+                          child: Text(
+                            "No friends found",
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
-                      ),
               ),
-            const SizedBox(height: 10),
+
+            const SizedBox(height: 16),
+            GradientButton(
+              text: 'INVITE',
+              onPressed: () {},
+              width: 200,
+              height: 63,
+            ),
+            const SizedBox(height: 16),
+
             if (selected.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(16),
