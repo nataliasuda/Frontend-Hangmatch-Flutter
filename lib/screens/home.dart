@@ -35,16 +35,34 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 15, left: 20),
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: Icon(
+                  Icons.notifications_sharp,
+                  size: 26,
+                  color: Color(0xFFD593F7),
+                ),
+              ),
+            ),
+
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 75),
+                  padding: const EdgeInsets.only(top: 27),
                   child: Heading(text: 'Welcome Back!', fontSize: 30),
                 ),
                 SizedBox(width: 33),
                 Padding(
-                  padding: const EdgeInsets.only(top: 48),
+                  padding: const EdgeInsets.only(top: 0),
                   child: SvgPicture.asset(
                     'assets/images/logo.svg',
                     width: 56,
@@ -59,19 +77,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Heading(text: 'Last session'),
             SizedBox(height: 22),
-            if (sessions.isEmpty)
-              const Text('No sessions found.')
-            else
-              Column(
-                children: [
-                  if (sessions.isNotEmpty)
-                    LastSessionCard(title: sessions[0].name, onPressed: () {}),
-                  if (sessions.length > 1) ...[
-                    const SizedBox(height: 20),
-                    LastSessionCard(title: sessions[1].name, onPressed: () {}),
+            sessions.isEmpty
+                ? Padding(
+                  padding: const EdgeInsets.only(left: 150),
+                  child: const Text('No sessions found.'),
+                )
+                : Column(
+                  children: [
+                    if (sessions.isNotEmpty)
+                      LastSessionCard(
+                        title: sessions[0].name,
+                        onPressed: () {},
+                      ),
+                    if (sessions.length > 1) ...[
+                      const SizedBox(height: 20),
+                      LastSessionCard(
+                        title: sessions[1].name,
+                        onPressed: () {},
+                      ),
+                    ],
                   ],
-                ],
-              ),
+                ),
 
             SizedBox(height: 22),
             Heading(text: 'Upcoming events'),
