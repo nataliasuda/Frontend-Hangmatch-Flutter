@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hangmatch/widgets/custom_search_bar.dart';
+import 'package:hangmatch/models/friend.dart';
+import 'package:hangmatch/services/friend_service.dart';
 
 class InviteFriendScreen extends StatefulWidget {
   const InviteFriendScreen({super.key});
@@ -10,29 +12,51 @@ class InviteFriendScreen extends StatefulWidget {
 
 class _InviteFriendScreenState extends State<InviteFriendScreen> {
   final TextEditingController searchController = TextEditingController();
+  final FriendService friendService = FriendService();
 
-  List<String> friends = ["Zuzia S", "Tatiana", "Natalia"];
-
-  List<String> filteredFriends = [];
+  List<Friend> friends = [];
+  List<Friend> filteredFriends = [];
   Set<String> selected = {};
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    filteredFriends = friends;
+    _loadFriends();
+  }
+
+  Future<void> _loadFriends() async {
+    try {
+      final friendsList = await friendService.getFriends();
+      setState(() {
+        friends = friendsList;
+        filteredFriends = friendsList;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading friends: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   void filterFriends(String query) {
     setState(() {
-      filteredFriends =
-          friends
-              .where((name) => name.toLowerCase().contains(query.toLowerCase()))
-              .toList();
+      if (query.isEmpty) {
+        filteredFriends = friends;
+      } else {
+        filteredFriends = friends
+            .where((friend) =>
+                friend.name.toLowerCase().contains(query.toLowerCase()) ||
+                friend.email.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
     });
   }
 
-  Widget _buildFriendTile(String name) {
-    final isSelected = selected.contains(name);
+  Widget _buildFriendTile(Friend friend) {
+    final isSelected = selected.contains(friend.id);
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -43,17 +67,21 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
       child: ListTile(
         leading: Icon(Icons.person, color: Colors.purpleAccent.shade100),
         title: Text(
-          name,
+          friend.name,
           style: const TextStyle(color: Colors.white, fontSize: 15),
+        ),
+        subtitle: Text(
+          friend.email,
+          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12),
         ),
         trailing: Checkbox(
           value: isSelected,
           onChanged: (_) {
             setState(() {
               if (isSelected) {
-                selected.remove(name);
+                selected.remove(friend.id);
               } else {
-                selected.add(name);
+                selected.add(friend.id);
               }
             });
           },
@@ -83,20 +111,37 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
           children: [
             CustomSearchBar(
               controller: searchController,
-              hintText: "Choose your friends...",
+              hintText: "Search your friends...",
               onChanged: filterFriends,
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredFriends.length,
-                itemBuilder: (context, index) {
-                  return _buildFriendTile(filteredFriends[index]);
-                },
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else
+              Expanded(
+                child: filteredFriends.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: filteredFriends.length,
+                        itemBuilder: (context, index) {
+                          return _buildFriendTile(filteredFriends[index]);
+                        },
+                      )
+                    : const Center(
+                        child: Text(
+                          "No friends found",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
               ),
-            ),
-
             const SizedBox(height: 10),
+            if (selected.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  "Selected: ${selected.length} friend(s)",
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
           ],
         ),
       ),
