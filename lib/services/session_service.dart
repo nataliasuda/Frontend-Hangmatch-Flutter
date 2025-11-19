@@ -67,6 +67,59 @@ class SessionService {
       return [];
     }
   }
+  Future<void> joinSession(BuildContext context, String sessionId) async {
+  final url = Uri.parse('$baseUrl/sessions/join/$sessionId');
+  try {
+    final response = await _tokenService.authorizedPost(url, body: {});
+
+    if (!context.mounted) return;
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      _showSnackBar(context, data['detail'] ?? 'Joined session', true);
+    } else {
+      _showSnackBar(context, data['detail'] ?? 'Failed to join session', false);
+    }
+  } catch (e) {
+    if (!context.mounted) return;
+    _showSnackBar(context, 'Error: $e', false);
+  }
+}
+
+Future<void> rejectSession(BuildContext context, String sessionId) async {
+  final url = Uri.parse('$baseUrl/sessions/reject/$sessionId');
+  try {
+    final response = await _tokenService.authorizedPost(url, body: {});
+
+    if (!context.mounted) return;
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      _showSnackBar(context, data['message'] ?? 'Rejected session', true);
+    } else {
+      _showSnackBar(context, data['detail'] ?? 'Failed to reject session', false);
+    }
+  } catch (e) {
+    if (!context.mounted) return;
+    _showSnackBar(context, 'Error: $e', false);
+  }
+}
+Future<List<dynamic>> getMyInvitations(BuildContext context) async {
+  final url = Uri.parse('$baseUrl/invitations/me');
+
+  try {
+    final response = await _tokenService.authorizedGet(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      return [];
+    }
+  } catch (e) {
+    return [];
+  }
+}
+
 
   void _showSnackBar(BuildContext context, String message, bool success) {
     ScaffoldMessenger.of(context).showSnackBar(
