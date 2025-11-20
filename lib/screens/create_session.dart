@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hangmatch/models/session.dart';
+import 'package:hangmatch/screens/invite_friend.dart';
 import 'package:hangmatch/services/session_service.dart';
 import 'package:hangmatch/widgets/form_component.dart';
 import 'package:hangmatch/widgets/gradient_button.dart';
@@ -79,7 +80,14 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   0xFFD593F7,
                 ).withAlpha((0.75 * 255).toInt()),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const InviteFriendScreen(),
+                  ),
+                );
+              },
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
