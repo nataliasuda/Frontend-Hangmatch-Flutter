@@ -2,11 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:hangmatch/widgets/custom_search_bar.dart';
 import 'package:hangmatch/models/friend.dart';
 import 'package:hangmatch/services/friend_service.dart';
+import 'package:hangmatch/services/session_service.dart';
 import 'package:hangmatch/widgets/gradient_button.dart';
 import 'package:hangmatch/widgets/invite_friend_tile.dart';
 
 class InviteFriendScreen extends StatefulWidget {
-  const InviteFriendScreen({super.key});
+  final String sessionId;
+  final String sessionName;
+  final int locationRadius;
+
+  const InviteFriendScreen({
+    super.key,
+    required this.sessionId,
+    required this.sessionName,
+    required this.locationRadius,
+  });
 
   @override
   State<InviteFriendScreen> createState() => _InviteFriendScreenState();
@@ -15,11 +25,14 @@ class InviteFriendScreen extends StatefulWidget {
 class _InviteFriendScreenState extends State<InviteFriendScreen> {
   final TextEditingController searchController = TextEditingController();
   final FriendService friendService = FriendService();
+  final SessionService sessionService = SessionService();
 
   List<Friend> friends = [];
   List<Friend> filteredFriends = [];
   Set<String> selected = {};
   bool isLoading = true;
+  bool isSendingInvites = false;
+  bool invitesSent = false;
 
   @override
   void initState() {
@@ -60,14 +73,52 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
     });
   }
 
-  void _toggleFriendSelection(String friendId) {
+  void _toggleFriendSelection(String friendEmail) {
     setState(() {
-      if (selected.contains(friendId)) {
-        selected.remove(friendId);
+      if (selected.contains(friendEmail)) {
+        selected.remove(friendEmail);
       } else {
-        selected.add(friendId);
+        selected.add(friendEmail);
       }
     });
+  }
+
+  Future<void> _sendInvitations() async {
+    if (selected.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select at least one friend'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isSendingInvites = true;
+    });
+
+    try {
+      await sessionService.inviteToSession(
+        context: context,
+        sessionId: widget.sessionId,
+        friendEmails: selected.toList(),
+      );
+
+      setState(() {
+        invitesSent = true;
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSendingInvites = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _activateSession() async {
+    await sessionService.activateSession(context, widget.sessionId);
   }
 
   @override
@@ -77,7 +128,7 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
-          "Choose friends to create session",
+          "Invite friends to session",
           style: TextStyle(color: Colors.white, fontSize: 16),
         ),
         centerTitle: false,
@@ -86,6 +137,44 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         child: Column(
           children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Session: ${widget.sessionName}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Radius: ${widget.locationRadius}km',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Status: ${invitesSent ? 'Waiting for friends...' : 'Draft'}',
+                    style: TextStyle(
+                      color: invitesSent ? Colors.orange : Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
             CustomSearchBar(
               controller: searchController,
               hintText: "Search your friends...",
@@ -105,9 +194,9 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
                             final friend = filteredFriends[index];
                             return InviteFriendTile(
                               friend: friend,
-                              isSelected: selected.contains(friend.id),
+                              isSelected: selected.contains(friend.email),
                               onSelected:
-                                  () => _toggleFriendSelection(friend.id),
+                                  () => _toggleFriendSelection(friend.email),
                             );
                           },
                         )
@@ -120,15 +209,42 @@ class _InviteFriendScreenState extends State<InviteFriendScreen> {
               ),
 
             const SizedBox(height: 16),
-            GradientButton(
-              text: 'INVITE',
-              onPressed: () {},
-              width: 200,
-              height: 63,
-            ),
+
+            if (!invitesSent) ...[
+              GradientButton(
+                text:
+                    isSendingInvites
+                        ? 'SENDING INVITES...'
+                        : 'SEND INVITATIONS',
+                onPressed: isSendingInvites ? () {} : () => _sendInvitations(),
+                width: double.infinity,
+                height: 63,
+              ),
+            ] else ...[
+              Column(
+                children: [
+                  GradientButton(
+                    text: 'ACTIVATE SESSION',
+                    onPressed: _activateSession,
+                    width: double.infinity,
+                    height: 63,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Invitations sent! Wait for friends to join, then activate.',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ],
+
             const SizedBox(height: 16),
 
-            if (selected.isNotEmpty)
+            if (selected.isNotEmpty && !invitesSent)
               Container(
                 padding: const EdgeInsets.all(16),
                 child: Text(
