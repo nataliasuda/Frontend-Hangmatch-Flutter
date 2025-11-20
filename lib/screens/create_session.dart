@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hangmatch/models/session.dart';
 import 'package:hangmatch/screens/invite_friend.dart';
 import 'package:hangmatch/services/session_service.dart';
 import 'package:hangmatch/widgets/form_component.dart';
@@ -18,29 +17,60 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
   double _selectedRadius = 5;
   final _form = GlobalKey<FormState>();
   final _sessionNameController = TextEditingController();
+  final SessionService _sessionService = SessionService();
+  bool _isCreating = false;
 
   @override
   void dispose() {
     _sessionNameController.dispose();
-
     super.dispose();
   }
 
-  void _submit() async {
-    final isValid = _form.currentState!.validate();
-
-    if (!isValid) {
+  Future<void> _createDraftAndInvite() async {
+    if (!_form.currentState!.validate()) {
       return;
     }
     _form.currentState?.save();
 
-    final session = Session(
-      name: _sessionNameController.text,
-      locationRadius: _selectedRadius.toInt(),
-      invitedUserIds: [],
-      createdAt: DateTime.now(),
-    );
-    await SessionService().createSession(context, session);
+    setState(() {
+      _isCreating = true;
+    });
+
+    try {
+      final session = await _sessionService.createDraftSession(
+        name: _sessionNameController.text,
+        locationRadius: _selectedRadius.toInt(),
+      );
+
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => InviteFriendScreen(
+                  sessionId: session.id!,
+                  sessionName: session.name,
+                  locationRadius: session.locationRadius,
+                ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error creating session: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCreating = false;
+        });
+      }
+    }
   }
 
   @override
@@ -72,40 +102,55 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                 },
               ),
             ),
-            SizedBox(height: 35),
+            const SizedBox(height: 35),
 
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(
-                  0xFFD593F7,
-                ).withAlpha((0.75 * 255).toInt()),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.06),
+                borderRadius: BorderRadius.circular(12),
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const InviteFriendScreen(),
-                  ),
-                );
-              },
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.person_add, color: Colors.white, size: 24),
-                  SizedBox(width: 8),
+                  Row(
+                    children: [
+                      Icon(Icons.info, color: Colors.purple.shade300, size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Invite friends after creating session',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    'Invite friends',
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    'You will be able to invite friends on the next screen',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.7),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            SizedBox(height: 50),
+            const SizedBox(height: 50),
+
             Text(
               'Distance [km]',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
+            const SizedBox(height: 16),
 
             SliderLocation(
               onChanged: (value) {
@@ -114,12 +159,27 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                 });
               },
             ),
+
             const SizedBox(height: 80),
+
             GradientButton(
               width: 351,
               height: 63,
-              text: 'START SESSION',
-              onPressed: _submit,
+              text: _isCreating ? 'CREATING...' : 'CREATE SESSION',
+              onPressed: _isCreating ? null : () => _createDraftAndInvite(),
+            ),
+
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Text(
+                'You will invite friends after session creation',
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),
