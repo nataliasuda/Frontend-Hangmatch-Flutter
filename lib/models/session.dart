@@ -2,8 +2,9 @@ class Session {
   final String? id;
   final String name;
   final int locationRadius;
-  final List<int> invitedUserIds;
+  final List<String> invitedUserIds;
   final DateTime createdAt;
+  final String status; 
 
   Session({
     this.id,
@@ -11,6 +12,7 @@ class Session {
     required this.locationRadius,
     required this.invitedUserIds,
     required this.createdAt,
+    this.status = 'draft', 
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -18,8 +20,9 @@ class Session {
       id: json['id']?.toString(),
       name: json['name'],
       locationRadius: json['location_radius'],
-      invitedUserIds: List<int>.from(json['invited_users_ids'] ?? []),
+      invitedUserIds: List<String>.from(json['invited_users_ids'] ?? []),
       createdAt: DateTime.parse(json['created_at']),
+      status: json['status'] ?? 'draft', 
     );
   }
 
@@ -28,6 +31,7 @@ class Session {
       'name': name,
       'location_radius': locationRadius,
       'invited_users_ids': invitedUserIds,
+      'status': status,
     };
   }
 }
