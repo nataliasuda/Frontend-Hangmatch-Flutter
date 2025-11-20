@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hangmatch/models/session.dart';
+import 'package:hangmatch/screens/searching_location.dart';
 import 'package:hangmatch/services/token_service.dart';
 
 class SessionService {
@@ -69,30 +70,39 @@ class SessionService {
     }
   }
 
-  Future<void> activateSession(BuildContext context, String sessionId) async {
-    final url = Uri.parse('$baseUrl/sessions/activate/$sessionId');
+ Future<void> activateSession(BuildContext context, String sessionId) async {
+  final url = Uri.parse('$baseUrl/sessions/activate/$sessionId');
 
-    try {
-      final response = await _tokenService.authorizedPost(url, body: {});
+  try {
+    final response = await _tokenService.authorizedPost(url, body: {});
 
-      if (!context.mounted) return;
+    if (!context.mounted) return;
 
-      final responseData = jsonDecode(response.body);
-      if (response.statusCode == 200) {
-        _showSnackBar(context, 'Session activated!', true);
-        Navigator.pop(context, true); // Powrót z sukcesem
-      } else {
-        _showSnackBar(
+    final responseData = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      _showSnackBar(context, 'Session activated!', true);
+      
+      
+      if (context.mounted) {
+        Navigator.pushReplacement(
           context,
-          responseData['detail'] ?? 'Error activating session',
-          false,
+          MaterialPageRoute(
+            builder: (context) => SearchingLocation(sessionId: sessionId),
+          ),
         );
       }
-    } catch (e) {
-      if (!context.mounted) return;
-      _showSnackBar(context, 'Network error: $e', false);
+    } else {
+      _showSnackBar(
+        context,
+        responseData['detail'] ?? 'Error activating session',
+        false,
+      );
     }
+  } catch (e) {
+    if (!context.mounted) return;
+    _showSnackBar(context, 'Network error: $e', false);
   }
+}
 
   Future<List<Session>> getMySessions(BuildContext context) async {
     final url = Uri.parse('$baseUrl/sessions/me');
