@@ -2,7 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class VoteButtons extends StatelessWidget {
-  const VoteButtons({super.key});
+  final VoidCallback onLike;
+  final VoidCallback onDislike;
+
+  const VoteButtons({
+    super.key,
+    required this.onLike,
+    required this.onDislike,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -10,7 +17,7 @@ class VoteButtons extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: onDislike,
           style: ElevatedButton.styleFrom(
             minimumSize: Size(97, 91),
             shape: CircleBorder(),
@@ -24,7 +31,7 @@ class VoteButtons extends StatelessWidget {
         ),
         SizedBox(width: 107),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: onLike,
           style: ElevatedButton.styleFrom(
             minimumSize: Size(97, 91),
             shape: CircleBorder(),
