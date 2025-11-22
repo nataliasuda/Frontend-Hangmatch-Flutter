@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hangmatch/widgets/swipe_card.dart';
-import 'package:hangmatch/widgets/vote_buttons.dart';
+import '../widgets/swipe_card.dart';
+import '../widgets/vote_buttons.dart';
+import '../services/event_service.dart';
+import '../models/event.dart';
 
 class VoteScreen extends StatefulWidget {
   const VoteScreen({super.key});
@@ -10,16 +12,44 @@ class VoteScreen extends StatefulWidget {
 }
 
 class _VoteScreenState extends State<VoteScreen> {
+  List<Event> events = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadEvents();
+  }
+
+  Future<void> loadEvents() async {
+    try {
+     
+      final fetchedEvents = await EventService().fetchEvents('Wroclaw'); 
+      setState(() {
+        events = fetchedEvents;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+      setState(() => isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Padding(padding: const EdgeInsets.only(top: 95), child: SwipeCard()),
-          SizedBox(height: 54),
-          VoteButtons(),
-        ],
-      ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : events.isEmpty
+              ? Center(child: Text('No events found.'))
+              : Column(
+                  children: [
+                    SizedBox(height: 95),
+                    SwipeCard(event: events.first),
+                    SizedBox(height: 54),
+                    VoteButtons(),
+                  ],
+                ),
     );
   }
 }
