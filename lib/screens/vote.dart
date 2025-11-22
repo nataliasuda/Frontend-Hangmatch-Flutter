@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/swipe_card.dart';
-import '../widgets/vote_buttons.dart';
-import '../services/event_service.dart';
-import '../models/event.dart';
+import 'package:hangmatch/models/event.dart';
+import 'package:hangmatch/services/event_service.dart';
+import 'package:hangmatch/widgets/swipe_card.dart';
+import 'package:hangmatch/widgets/vote_buttons.dart';
 
 class VoteScreen extends StatefulWidget {
   const VoteScreen({super.key});
@@ -23,8 +23,7 @@ class _VoteScreenState extends State<VoteScreen> {
 
   Future<void> loadEvents() async {
     try {
-     
-      final fetchedEvents = await EventService().fetchEvents('Wroclaw'); 
+      final fetchedEvents = await EventService().fetchEvents('Wroclaw');
       setState(() {
         events = fetchedEvents;
         isLoading = false;
@@ -35,21 +34,42 @@ class _VoteScreenState extends State<VoteScreen> {
     }
   }
 
+  void likeEvent() {
+    if (events.isEmpty) return;
+
+    print("Liked: ${events.first.name}");
+
+    setState(() {
+      events.removeAt(0);
+    });
+  }
+
+  void dislikeEvent() {
+    if (events.isEmpty) return;
+
+    print("Disliked: ${events.first.name}");
+
+    setState(() {
+      events.removeAt(0);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : events.isEmpty
-              ? Center(child: Text('No events found.'))
+      body:
+          isLoading
+              ? Center(child: CircularProgressIndicator())
+              : events.isEmpty
+              ? Center(child: Text('No more events to show'))
               : Column(
-                  children: [
-                    SizedBox(height: 95),
-                    SwipeCard(event: events.first),
-                    SizedBox(height: 54),
-                    VoteButtons(),
-                  ],
-                ),
+                children: [
+                  SizedBox(height: 95),
+                  SwipeCard(event: events.first),
+                  SizedBox(height: 54),
+                  VoteButtons(onLike: likeEvent, onDislike: dislikeEvent),
+                ],
+              ),
     );
   }
 }
