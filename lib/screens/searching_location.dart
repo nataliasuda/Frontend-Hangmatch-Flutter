@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hangmatch/screens/vote.dart';
 
@@ -17,23 +17,41 @@ class SearchingLocation extends StatefulWidget {
   State<SearchingLocation> createState() => _SearchingLocationState();
 }
 
-class _SearchingLocationState extends State<SearchingLocation> {
-  bool _isLoading = true;
+class _SearchingLocationState extends State<SearchingLocation>
+    with SingleTickerProviderStateMixin {
   String _statusMessage = 'Requesting location access...';
   double? _userLat;
   double? _userLng;
   bool _showAllowButton = false;
 
+  late AnimationController _animationController;
+  late Animation<double> _pulse;
+
   @override
   void initState() {
     super.initState();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat(reverse: true);
+
+    _pulse = Tween<double>(begin: 0.9, end: 1.15).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
     _requestLocationAndSearch();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _requestLocationAndSearch() async {
     try {
       setState(() {
-        _isLoading = true;
         _showAllowButton = false;
         _statusMessage = 'Checking location services...';
       });
@@ -43,10 +61,9 @@ class _SearchingLocationState extends State<SearchingLocation> {
       if (!serviceEnabled) {
         if (mounted) {
           setState(() {
-            _isLoading = false;
             _showAllowButton = true;
             _statusMessage =
-                'Location services are disabled. Please enable GPS to find events near you.';
+                'Location services are disabled. Please enable GPS to continue.';
           });
         }
         return;
@@ -62,10 +79,9 @@ class _SearchingLocationState extends State<SearchingLocation> {
         if (permission == LocationPermission.denied) {
           if (mounted) {
             setState(() {
-              _isLoading = false;
               _showAllowButton = true;
               _statusMessage =
-                  'Location permission is required to find events near you. Please allow location access.';
+                  'Location permission is required. Please allow access.';
             });
           }
           return;
@@ -75,10 +91,9 @@ class _SearchingLocationState extends State<SearchingLocation> {
       if (permission == LocationPermission.deniedForever) {
         if (mounted) {
           setState(() {
-            _isLoading = false;
             _showAllowButton = true;
             _statusMessage =
-                'Location permission is permanently denied. Please enable it in app settings to continue.';
+                'Location permission permanently denied. Enable it in settings.';
           });
         }
         return;
@@ -90,36 +105,35 @@ class _SearchingLocationState extends State<SearchingLocation> {
         timeLimit: const Duration(seconds: 15),
       );
 
+      _userLat = position.latitude;
+      _userLng = position.longitude;
+
       setState(() {
-        _userLat = position.latitude;
-        _userLng = position.longitude;
         _statusMessage =
-            'Searching for events within ${widget.locationRadius}km...';
+            'Searching for events within ${widget.locationRadius} km...';
       });
 
       await Future.delayed(const Duration(seconds: 2));
 
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder:
-                (_) => VoteScreen(
-                  sessionId: widget.sessionId,
-                  userLat: _userLat!,
-                  userLng: _userLng!,
-                  locationRadius: widget.locationRadius,
-                ),
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder:
+              (_) => VoteScreen(
+                sessionId: widget.sessionId,
+                userLat: _userLat!,
+                userLng: _userLng!,
+                locationRadius: widget.locationRadius,
+              ),
+        ),
+      );
     } catch (e) {
-      print('Error in location search: $e');
       if (mounted) {
         setState(() {
-          _isLoading = false;
           _showAllowButton = true;
-          _statusMessage = 'Error getting location: ${e.toString()}';
+          _statusMessage = 'Error getting location: $e';
         });
       }
     }
@@ -131,7 +145,6 @@ class _SearchingLocationState extends State<SearchingLocation> {
 
       if (!serviceEnabled) {
         await Geolocator.openLocationSettings();
-
         await Future.delayed(const Duration(seconds: 1));
         _retryLocation();
         return;
@@ -142,25 +155,23 @@ class _SearchingLocationState extends State<SearchingLocation> {
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();
-
         await Future.delayed(const Duration(seconds: 1));
         _retryLocation();
         return;
       }
 
       _retryLocation();
-    } catch (e) {
-      print('Error opening settings: $e');
+    } catch (_) {
       _retryLocation();
     }
   }
 
   void _retryLocation() {
     setState(() {
-      _isLoading = true;
       _showAllowButton = false;
       _statusMessage = 'Checking location...';
     });
+
     _requestLocationAndSearch();
   }
 
@@ -170,72 +181,88 @@ class _SearchingLocationState extends State<SearchingLocation> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(
-                  'assets/images/logo.svg',
-                  width: 80,
-                  height: 100,
-                ),
-                const SizedBox(height: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedBuilder(
+                animation: _pulse,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _pulse.value,
+                    child: Container(
+                      padding: const EdgeInsets.all(28),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF1A1A1A),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.purple.withOpacity(0.5),
+                            blurRadius: 20,
+                            spreadRadius: 4,
+                          ),
+                        ],
+                        border: Border.all(
+                          color: Colors.purpleAccent,
+                          width: 2,
+                        ),
+                      ),
+                      child: SvgPicture.asset(
+                        "assets/images/logo.svg",
+                        width: 42,
+                        height: 42,
+                      ),
+                    ),
+                  );
+                },
+              ),
 
-                Text(
+              const SizedBox(height: 40),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
                   _statusMessage,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                  ),
                   textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
-                const SizedBox(height: 24),
+              ),
 
-                if (_isLoading) ...[
-                  const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.purple),
+              const SizedBox(height: 24),
+
+              if (_showAllowButton) ...[
+                ElevatedButton(
+                  onPressed: _onAllowPressed,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
-                ] else if (_showAllowButton) ...[
-                  Column(
-                    children: [
-                      ElevatedButton(
-                        onPressed: _onAllowPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'ALLOW LOCATION',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.maybePop(context);
-                        },
-                        child: const Text(
-                          'Maybe Later',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                    ],
+                  child: const Text(
+                    'ALLOW LOCATION',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                ],
+                ),
+                const SizedBox(height: 16),
+
+                TextButton(
+                  onPressed: () => Navigator.maybePop(context),
+                  child: const Text(
+                    'Maybe later',
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ),
               ],
-            ),
+            ],
           ),
         ),
       ),
