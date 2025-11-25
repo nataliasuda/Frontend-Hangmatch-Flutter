@@ -70,39 +70,44 @@ class SessionService {
     }
   }
 
- Future<void> activateSession(BuildContext context, String sessionId) async {
-  final url = Uri.parse('$baseUrl/sessions/activate/$sessionId');
+  Future<void> activateSession(BuildContext context, String sessionId) async {
+    final url = Uri.parse('$baseUrl/sessions/activate/$sessionId');
 
-  try {
-    final response = await _tokenService.authorizedPost(url, body: {});
+    try {
+      final response = await _tokenService.authorizedPost(url, body: {});
 
-    if (!context.mounted) return;
+      if (!context.mounted) return;
 
-    final responseData = jsonDecode(response.body);
-    if (response.statusCode == 200) {
-      _showSnackBar(context, 'Session activated!', true);
-      
-      
-      if (context.mounted) {
-        Navigator.pushReplacement(
+      final responseData = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        _showSnackBar(context, 'Session activated!', true);
+        final locationRadius =
+            responseData['location_radius']?.toDouble() ?? 5.0;
+
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => SearchingLocation(
+                    sessionId: sessionId,
+                    locationRadius: locationRadius,
+                  ),
+            ),
+          );
+        }
+      } else {
+        _showSnackBar(
           context,
-          MaterialPageRoute(
-            builder: (context) => SearchingLocation(sessionId: sessionId),
-          ),
+          responseData['detail'] ?? 'Error activating session',
+          false,
         );
       }
-    } else {
-      _showSnackBar(
-        context,
-        responseData['detail'] ?? 'Error activating session',
-        false,
-      );
+    } catch (e) {
+      if (!context.mounted) return;
+      _showSnackBar(context, 'Network error: $e', false);
     }
-  } catch (e) {
-    if (!context.mounted) return;
-    _showSnackBar(context, 'Network error: $e', false);
   }
-}
 
   Future<List<Session>> getMySessions(BuildContext context) async {
     final url = Uri.parse('$baseUrl/sessions/me');
