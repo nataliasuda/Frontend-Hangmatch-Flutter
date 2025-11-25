@@ -39,67 +39,65 @@ class _WaitingForActivationScreenState
   }
 
   Future<void> _checkSessionStatus() async {
-  try {
-    final sessions = await _sessionService.getMySessions(context);
-    
-  
-    final currentSession = sessions.firstWhere(
-      (session) => session.id == widget.sessionId,
-      orElse: () => Session(
-        id: '',
-        name: '',
-        locationRadius: 0,
-        invitedUserIds: [],
-        createdAt: DateTime.now(),
-        status: 'draft',
-      ),
-    );
+    try {
+      final sessions = await _sessionService.getMySessions(context);
 
- 
-    if (currentSession.id!.isNotEmpty && currentSession.status == 'active') {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SearchingLocation(sessionId: widget.sessionId),
-          ),
-        );
+      final currentSession = sessions.firstWhere(
+        (session) => session.id == widget.sessionId,
+        orElse:
+            () => Session(
+              id: '',
+              name: '',
+              locationRadius: 0,
+              invitedUserIds: [],
+              createdAt: DateTime.now(),
+              status: 'draft',
+            ),
+      );
+
+      if (currentSession.id!.isNotEmpty && currentSession.status == 'active') {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => SearchingLocation(
+                    sessionId: widget.sessionId,
+                    locationRadius: currentSession.locationRadius.toDouble(),
+                  ),
+            ),
+          );
+        }
+        return;
       }
-      return;
-    }
-    
-   
-    if (currentSession.id!.isEmpty) {
-     
+
+      if (currentSession.id!.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Session is no longer available'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          Navigator.pop(context);
+        }
+        return;
+      }
+
+      print('Session status: ${currentSession.status} - still waiting...');
+    } catch (e) {
+      print('Error checking session status: $e');
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Session is no longer available'),
-            backgroundColor: Colors.red,
+          SnackBar(
+            content: Text('Error checking session: $e'),
+            backgroundColor: Colors.orange,
           ),
         );
-        Navigator.pop(context);
       }
-      return;
-    }
-    
-    
-    print('Session status: ${currentSession.status} - still waiting...');
-    
-  } catch (e) {
-    print('Error checking session status: $e');
-    
-    
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error checking session: $e'),
-          backgroundColor: Colors.orange,
-        ),
-      );
     }
   }
-}
 
   @override
   void dispose() {
@@ -124,7 +122,6 @@ class _WaitingForActivationScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animowana ikona
             Icon(Icons.hourglass_top, color: Colors.purple.shade300, size: 80),
             const SizedBox(height: 30),
 
