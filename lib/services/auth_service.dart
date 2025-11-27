@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hangmatch/screens/auth.dart';
 import 'package:hangmatch/services/token_service.dart';
 import 'package:hangmatch/widgets/modern_navigation_bar.dart';
 import 'package:hangmatch/models/user.dart';
+import 'package:http/http.dart' as http;
 
 class UserService {
   final baseUrl = Uri.parse('http://10.0.2.2:8000');
@@ -90,7 +92,10 @@ class UserService {
     }
   }
 
-  Future<void> updateProfile(BuildContext context, UserUpdate userUpdate) async {
+  Future<void> updateProfile(
+    BuildContext context,
+    UserUpdate userUpdate,
+  ) async {
     final url = Uri.parse('$baseUrl/users/me');
 
     try {
@@ -146,6 +151,48 @@ class UserService {
     } catch (e) {
       if (!context.mounted) return;
       _showSnackBar(context, 'Logout error: $e', false);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateAvatar(File imageFile) async {
+    try {
+      final token = await TokenService().getToken();
+      final uri = Uri.parse('$baseUrl/users/me/avatar');
+
+      var request = http.MultipartRequest('PUT', uri);
+      request.headers['Authorization'] = 'Bearer $token';
+
+      String extension = imageFile.path.split('.').last.toLowerCase();
+
+      http.MediaType contentType;
+      if (extension == 'png') {
+        contentType = http.MediaType('image', 'png');
+      } else if (extension == 'jpg' || extension == 'jpeg') {
+        contentType = http.MediaType('image', 'jpeg');
+      } else {
+        contentType = http.MediaType('image', 'jpeg');
+      }
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          imageFile.path,
+          contentType: contentType,
+        ),
+      );
+
+      var response = await request.send();
+      final responseData = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(responseData);
+
+        return jsonResponse;
+      } else {
+        throw Exception('HTTP ${response.statusCode}: $responseData');
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
