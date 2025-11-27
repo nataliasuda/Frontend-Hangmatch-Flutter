@@ -14,6 +14,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   String _name = '';
   String _email = '';
+  String? _avatarUrl;
   bool _isLoading = true;
   final UserService _userService = UserService();
 
@@ -31,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() {
           _name = userData['name'] ?? 'User';
           _email = userData['email'] ?? 'No email';
+          _avatarUrl = userData['avatar_url'];
           _isLoading = false;
         });
       } else {
@@ -83,9 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _performLogout() async {
     try {
       await _userService.logout(context);
-  
     } catch (e) {
-
       print('Logout error: $e');
     }
   }
@@ -120,14 +120,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white12,
-                      child: Text(
-                        _name.isNotEmpty ? _name[0].toUpperCase() : 'U',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      backgroundImage: _avatarUrl != null 
+                          ? NetworkImage('${_userService.baseUrl}$_avatarUrl')
+                          : null,
+                      child: _avatarUrl == null 
+                          ? Text(
+                              _name.isNotEmpty ? _name[0].toUpperCase() : 'U',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -168,8 +173,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         setState(() {
                           _name = result['name'] ?? _name;
                           _email = result['email'] ?? _email;
+                          _avatarUrl = result['avatar_url'] ?? _avatarUrl; // DODAJ TE LINIĘ
                         });
 
+                        // Odśwież dane z serwera żeby mieć pewność
                         _loadUserData();
                       }
                     },
