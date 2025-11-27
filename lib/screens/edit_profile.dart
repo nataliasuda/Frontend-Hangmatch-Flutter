@@ -16,12 +16,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isInitializing = true;
+  String? _avatarUrl;
 
   @override
   void initState() {
@@ -37,6 +37,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         setState(() {
           nameController.text = userData['name'] ?? '';
           emailController.text = userData['email'] ?? '';
+          _avatarUrl = userData['avatar_url'];
           _isInitializing = false;
         });
       } else {
@@ -53,6 +54,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  void _onAvatarChanged(String? newAvatarUrl) {
+    setState(() {
+      _avatarUrl = newAvatarUrl;
+    });
+  }
+
   Future<void> _saveChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -67,6 +74,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         password: isChangingPassword ? passwordController.text.trim() : null,
         repeatedPassword:
             isChangingPassword ? confirmPasswordController.text.trim() : null,
+        avatarUrl: _avatarUrl,
       );
 
       await UserService().updateProfile(context, userUpdate);
@@ -75,10 +83,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Navigator.pop(context, {
           'name': nameController.text,
           'email': emailController.text,
+          'avatar_url': _avatarUrl,
         });
       }
     } catch (e) {
-      if (mounted) {}
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: $e')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -124,7 +137,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: ListView(
             children: [
               const SizedBox(height: 10),
-              const AvatarSection(),
+              AvatarSection(
+                currentAvatarUrl: _avatarUrl,
+                onAvatarChanged: _onAvatarChanged,
+              ),
               const SizedBox(height: 40),
 
               InputField(
