@@ -41,15 +41,60 @@ class _AvatarSectionState extends State<AvatarSection> {
       final response = await _userService.updateAvatar(imageFile);
       widget.onAvatarChanged(response['avatar_url']);
     } catch (e) {
+    
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _deleteAvatar() async {
+    setState(() => _isLoading = true);
+    try {
+      await _userService.deleteAvatar();
+      widget.onAvatarChanged(null);
+    } catch (e) {
+    
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showDeleteDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: const Text('Delete avatar'),
+          content: const Text('Are you sure you want to delete your avatar?', style: TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white70) ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteAvatar();
+              },
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _isLoading ? null : _pickImage,
+      onLongPress: widget.currentAvatarUrl != null && !_isLoading 
+          ? _showDeleteDialog 
+          : null,
       child: Column(
         children: [
           Stack(
@@ -57,16 +102,12 @@ class _AvatarSectionState extends State<AvatarSection> {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey[800],
-                backgroundImage:
-                    widget.currentAvatarUrl != null
-                        ? NetworkImage(
-                          '${_userService.baseUrl}${widget.currentAvatarUrl!}',
-                        )
-                        : null,
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : widget.currentAvatarUrl == null
+                backgroundImage: widget.currentAvatarUrl != null
+                    ? NetworkImage('${_userService.baseUrl}${widget.currentAvatarUrl!}')
+                    : null,
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : widget.currentAvatarUrl == null
                         ? Icon(Icons.camera_alt, size: 40, color: Colors.grey)
                         : null,
               ),
@@ -99,7 +140,9 @@ class _AvatarSectionState extends State<AvatarSection> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Tap to change avatar',
+            widget.currentAvatarUrl != null 
+                ? 'Tap to change avatar, long press to delete'
+                : 'Tap to select avatar',
             style: TextStyle(color: Colors.grey[400], fontSize: 12),
           ),
         ],
