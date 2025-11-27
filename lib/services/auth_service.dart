@@ -196,6 +196,19 @@ class UserService {
     }
   }
 
+Future<void> deleteAvatar() async {
+  try {
+    final url = Uri.parse('$baseUrl/users/me/avatar');
+    final response = await _tokenService.authorizedDelete(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete avatar: ${response.statusCode}');
+    }
+  } catch (e) {
+    throw Exception('Error deleting avatar: $e');
+  }
+}
+
   void _showSnackBar(BuildContext context, String message, bool success) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
