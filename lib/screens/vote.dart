@@ -27,11 +27,13 @@ class VoteScreen extends StatefulWidget {
 class _VoteScreenState extends State<VoteScreen> {
   List<Event> events = [];
   bool isLoading = true;
+  int matchCount = 0;
 
   @override
   void initState() {
     super.initState();
     loadEvents();
+    loadMatchCount();
   }
 
   Future<void> loadEvents() async {
@@ -52,6 +54,19 @@ class _VoteScreenState extends State<VoteScreen> {
     }
   }
 
+  Future<void> loadMatchCount() async {
+    try {
+      final matchedEvents = await EventService().fetchSessionMatches(
+        widget.sessionId,
+      );
+      setState(() {
+        matchCount = matchedEvents.length;
+      });
+    } catch (e) {
+      print('Error loading match count: $e');
+    }
+  }
+
   void likeEvent() async {
     if (events.isEmpty) return;
 
@@ -60,6 +75,8 @@ class _VoteScreenState extends State<VoteScreen> {
     try {
       await EventService().sendVote(widget.sessionId, event.id, 'like');
       print("Sent LIKE for: ${event.name}");
+
+      await loadMatchCount();
     } catch (e) {
       print("Error sending like: $e");
     }
@@ -77,6 +94,8 @@ class _VoteScreenState extends State<VoteScreen> {
     try {
       await EventService().sendVote(widget.sessionId, event.id, 'dislike');
       print("Sent DISLIKE for: ${event.name}");
+
+      await loadMatchCount();
     } catch (e) {
       print("Error sending dislike: $e");
     }
@@ -126,14 +145,63 @@ class _VoteScreenState extends State<VoteScreen> {
               )
               : Column(
                 children: [
-                  const SizedBox(height: 95),
-                  SwipeableCard(
-                    event: events.first,
-                    onLike: likeEvent,
-                    onDislike: dislikeEvent,
+                  const SizedBox(height: 60),
+
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF884EE9), Color(0xFFD593F7)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.purple.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.favorite_border,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Matches $matchCount',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 54),
-                  VoteButtons(onLike: likeEvent, onDislike: dislikeEvent),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SwipeableCard(
+                          event: events.first,
+                          onLike: likeEvent,
+                          onDislike: dislikeEvent,
+                        ),
+                        const SizedBox(height: 54),
+                        VoteButtons(onLike: likeEvent, onDislike: dislikeEvent),
+                      ],
+                    ),
+                  ),
                 ],
               ),
     );

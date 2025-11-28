@@ -90,16 +90,17 @@ class EventService {
     }
   }
 
-  Future<List<String>> fetchSessionMatches(String sessionId) async {
-    final url = Uri.parse('$baseUrl/sessions/$sessionId/results');
+Future<List<String>> fetchSessionMatches(String sessionId) async {
+  final url = Uri.parse('$baseUrl/sessions/$sessionId/results');
 
-    final response = await _tokenService.authorizedGet(url);
+  final response = await _tokenService.authorizedGet(url);
 
-    if (response.statusCode != 200) {
-      throw Exception("Failed to load matches");
-    }
-
-    final data = jsonDecode(response.body);
-    return List<String>.from(data["matched_event_ids"]);
+  if (response.statusCode != 200) {
+    throw Exception("Failed to load matches");
   }
+
+  final data = jsonDecode(response.body);
+  
+  return List<String>.from(data["matched_event_ids"] ?? []);
+}
 }
