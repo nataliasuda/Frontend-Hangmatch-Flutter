@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:hangmatch/models/event.dart';
 import 'package:hangmatch/services/event_service.dart';
 import 'package:hangmatch/widgets/event_tile.dart';
+import 'package:hangmatch/screens/home.dart';
 
 class ResultsScreen extends StatefulWidget {
   final String sessionId;
+  final double userLat;
+  final double userLng;
 
   const ResultsScreen({
     super.key,
-    required this.sessionId, required userLat, required userLng,
+    required this.sessionId,
+    required this.userLat,
+    required this.userLng,
   });
 
   @override
@@ -28,11 +33,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Future<void> loadResults() async {
     try {
       final eventService = EventService();
-
-      // 1. pobierz ID eventów
       final ids = await eventService.fetchSessionMatches(widget.sessionId);
 
-      // 2. pobierz szczegóły eventów z API Ticketmaster (lub lokalnie)
       final List<Event> events = [];
       for (final id in ids) {
         final details = await eventService.fetchEventById(id);
@@ -49,6 +51,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
+  void _exitToHome() {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,27 +69,53 @@ class _ResultsScreenState extends State<ResultsScreen> {
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: const Text("Results"),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : matchedEvents.isEmpty
-              ? const Center(
-                  child: Text(
-                    "No common matches yet",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                )
-              : GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.8,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: matchedEvents.length,
-                  itemBuilder: (_, i) => EventTile(event: matchedEvents[i]),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 22),
+            child: GestureDetector(
+              onTap: _exitToHome,
+              child: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.1),
+                  // : Colors.white.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(22),
                 ),
+                child: Icon(Icons.home, size: 26, color: const Color(0xFFD593F7)),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child:
+                isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : matchedEvents.isEmpty
+                    ? const Center(
+                      child: Text(
+                        "No common matches yet",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                    : GridView.builder(
+                      padding: const EdgeInsets.all(16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.8,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                          ),
+                      itemCount: matchedEvents.length,
+                      itemBuilder: (_, i) => EventTile(event: matchedEvents[i]),
+                    ),
+          ),
+        ],
+      ),
     );
   }
 }
