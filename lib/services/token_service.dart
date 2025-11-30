@@ -54,7 +54,7 @@ class TokenService {
     return response;
   }
 
-  Future<http.Response> authorizedPost(Uri url, {required Object body}) async {
+  Future<http.Response> authorizedPost(Uri url, {required Map<String, dynamic> body}) async {
     String? token = await getToken();
 
     http.Response response = await http.post(
@@ -83,31 +83,60 @@ class TokenService {
     return response;
   }
 
-  Future<String?> refreshAccessToken() async {
-    final refreshToken = await getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) {
-      return null;
-    }
+  Future<http.Response> authorizedPut(Uri url, {required Map<String, dynamic> body}) async {
+    String? token = await getToken();
 
-    final response = await http.post(
-      Uri.parse('$baseUrl/refresh?refresh_token=$refreshToken'),
-      headers: {'Content-Type': 'application/json'},
+    http.Response response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final newAccessToken = data['access_token'];
-      final newRefreshToken = data['refresh_token'];
-
-      if (newAccessToken != null) {
-        await saveToken(newAccessToken);
+    if (response.statusCode == 401) {
+      final newToken = await refreshAccessToken();
+      if (newToken != null) {
+        response = await http.put(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $newToken',
+          },
+          body: jsonEncode(body),
+        );
       }
-      if (newRefreshToken != null) {
-        await saveRefreshToken(newRefreshToken);
+    }
+
+    return response;
+  }
+
+  Future<String?> refreshAccessToken() async {
+      final refreshToken = await getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
+        return null;
       }
 
-      return newAccessToken;
-    } else {}
+      final response = await http.post(
+        Uri.parse('$baseUrl/refresh?refresh_token=$refreshToken'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final newAccessToken = data['access_token'];
+        final newRefreshToken = data['refresh_token'];
+
+        if (newAccessToken != null) {
+          await saveToken(newAccessToken);
+        }
+        if (newRefreshToken != null) {
+          await saveRefreshToken(newRefreshToken);
+        }
+
+        return newAccessToken;
+       } else {}
 
     return null;
   }

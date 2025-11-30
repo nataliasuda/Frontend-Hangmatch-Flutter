@@ -55,6 +55,11 @@ class _AuthScreenState extends State<AuthScreen> {
           repeatPassword: _repeatPasswordController.text,
         );
         await userService.register(context, register);
+        _form.currentState?.reset();
+        _nameController.clear();
+        _emailController.clear();
+        _passwordController.clear();
+        _repeatPasswordController.clear();
       } else {
         final login = Login(
           email: _emailController.text,
@@ -135,7 +140,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                       ),
                       SizedBox(width: 66),
-                    
+
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -165,7 +170,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ],
                   ),
-                    
+
                   Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: 40,
@@ -227,18 +232,19 @@ class _AuthScreenState extends State<AuthScreen> {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Please enter your password.';
                               }
-                              if(!isSignIn){
-                              if (value.trim().length < 6) {
-                                return 'Password must be at least 6 characters long.';
+                              if (!isSignIn) {
+                                if (value.trim().length < 6) {
+                                  return 'Password must be at least 6 characters long.';
+                                }
+                                if (!RegExp(r'[0-9]').hasMatch(value)) {
+                                  return 'Password must contain at least one number.';
+                                }
+                                if (!RegExp(
+                                  r'[!@#$%^&*(),.?":{}|<>]',
+                                ).hasMatch(value)) {
+                                  return 'Password must contain at least one special character.';
+                                }
                               }
-                              if (!RegExp(r'[0-9]').hasMatch(value)) {
-                                return 'Password must contain at least one number.';
-                              }
-                              if (!RegExp(
-                                r'[!@#$%^&*(),.?":{}|<>]',
-                              ).hasMatch(value)) {
-                                return 'Password must contain at least one special character.';
-                              }}
                               return null;
                             },
                             onSaved: (value) {
@@ -270,7 +276,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                   ),
-                    
+
                   SizedBox(height: 24),
                   isLoading
                       ? CircularProgressIndicator()

@@ -58,3 +58,33 @@ class Login {
     return {'email': email, 'password': password};
   }
 }
+
+class UserUpdate {
+  final String name;
+  final String email;
+  final String? password;
+  final String? repeatedPassword;
+  final String? avatarUrl;
+
+  UserUpdate({
+    required this.name,
+    required this.email,
+    this.password,
+    this.repeatedPassword,
+    this.avatarUrl,
+  });
+
+  bool get isChangingPassword => password != null && password!.isNotEmpty;
+
+  Map<String, dynamic> toJson() {
+    final map = {'name': name, 'email': email};
+
+    if (isChangingPassword) {
+      map['password'] = password!;
+      map['repeated_password'] = repeatedPassword!;
+      map['avatar_url'] = avatarUrl!;
+    }
+
+    return map;
+  }
+}
